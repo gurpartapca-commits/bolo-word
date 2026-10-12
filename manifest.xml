@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Bolo Punjabi for Word.
+  Set up for https://gurpartapca-commits.github.io/bolo-word
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>93a0fc07-2851-4a6d-af88-c58b64abad7d</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Bolo Punjabi</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Bolo Punjabi"/>
+  <Description DefaultValue="Speak Punjabi, Hindi, Urdu or English and the text is typed into your document in Gurmukhi, Devanagari or Urdu script."/>
+  <IconUrl DefaultValue="https://gurpartapca-commits.github.io/bolo-word/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://gurpartapca-commits.github.io/bolo-word/assets/icon-64.png"/>
+  <SupportUrl DefaultValue="https://gurpartapca-commits.github.io/bolo-word/index.html"/>
+  <AppDomains>
+    <AppDomain>https://gurpartapca-commits.github.io</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Document"/>
+  </Hosts>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://gurpartapca-commits.github.io/bolo-word/taskpane.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Document">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="Web.Url"/>
+          </GetStarted>
+          <FunctionFile resid="Commands.Url"/>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="Bolo.Group">
+                <Label resid="Group.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16"/>
+                  <bt:Image size="32" resid="Icon.32"/>
+                  <bt:Image size="80" resid="Icon.80"/>
+                </Icon>
+                <Control xsi:type="Button" id="Bolo.Open">
+                  <Label resid="Button.Label"/>
+                  <Supertip>
+                    <Title resid="Button.Label"/>
+                    <Description resid="Button.Tip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>BoloPane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/assets/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/assets/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/taskpane.html"/>
+        <bt:Url id="Web.Url" DefaultValue="https://gurpartapca-commits.github.io/bolo-word/index.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="Bolo Punjabi is ready"/>
+        <bt:String id="Group.Label" DefaultValue="Bolo"/>
+        <bt:String id="Button.Label" DefaultValue="Bolo Punjabi"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="On the Home tab, click Bolo Punjabi, put your cursor in the document and press the mic."/>
+        <bt:String id="Button.Tip" DefaultValue="Speak Punjabi, Hindi, Urdu or English and have it typed at your cursor."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

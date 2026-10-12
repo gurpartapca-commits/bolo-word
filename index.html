@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Bolo Punjabi</title>
+<meta name="description" content="Speak Punjabi and get editable Gurmukhi text in your browser. Also Hindi, Urdu and English. Free, no signup." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Mukta+Mahee:wght@400;500;700&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Serif+Gurmukhi:wght@400;600&family=Baloo+Paaji+2:wght@400;600&family=Anek+Gurmukhi:wght@400;600&family=Hind:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Tiro+Devanagari+Hindi&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Gulzar&display=swap" />
+<style>
+/* Layout: one working sheet (the transcript) under a slim control rail; the mic is the only bold object.
+   Palette from phulkari embroidery: indigo cloth, magenta and marigold thread. */
+:root {
+  --cloth: #f4f5fa;        /* page */
+  --sheet: #ffffff;        /* transcript surface */
+  --ink: #1d2045;          /* text */
+  --muted: #5d6185;        /* secondary text */
+  --line: #dfe1ee;         /* borders */
+  --thread: #c0245e;       /* accent: magenta */
+  --thread-ink: #ffffff;
+  --marigold: #e9a100;     /* listening / live */
+  --ok: #1b8a5a;
+  --warn-bg: #fff4dc;
+  --warn-ink: #6b4a00;
+  --font-display: "Tiro Gurmukhi", "Noto Serif Gurmukhi", Georgia, serif;
+  --font-ui: "Mukta Mahee", "Noto Sans Gurmukhi", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow: 0 1px 2px rgba(29, 32, 69, .06), 0 8px 28px rgba(29, 32, 69, .07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
+    --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
+    --warn-bg: #3a2e10; --warn-ink: #ffe2a3; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
+  --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
+  --warn-bg: #3a2e10; --warn-ink: #ffe2a3; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--cloth);
+  color: var(--ink);
+  font: 16px/1.55 var(--font-ui);
+  padding-inline: 16px;
+  padding-block: 0 48px;
+}
+.wrap { max-width: 980px; margin-inline: auto; display: grid; gap: 28px; }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--thread); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 0; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand .g { font-family: var(--font-display); font-size: 34px; line-height: 1; color: var(--thread); }
+.brand .l { font-weight: 700; font-size: 18px; letter-spacing: .01em; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
+.chip-btn {
+  border: 1px solid var(--line); background: var(--sheet); border-radius: 999px; padding: 6px 12px;
+  cursor: pointer; font-size: 14px; display: inline-flex; gap: 6px; align-items: center;
+}
+.chip-btn:hover { border-color: var(--muted); }
+
+.intro h1 {
+  font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 5vw, 46px); line-height: 1.15;
+  margin: 0 0 6px; text-wrap: balance;
+}
+.intro p { margin: 0; color: var(--muted); max-width: 62ch; }
+
+/* ---------- converter ---------- */
+.converter { background: var(--sheet); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.rail {
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.field { display: grid; gap: 3px; min-width: 0; }
+.field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.field select { border: 1px solid var(--line); background: var(--cloth); border-radius: 10px; padding: 7px 10px; max-width: 100%; }
+.field input[type="range"] { accent-color: var(--thread); width: 120px; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding-bottom: 6px; }
+.toggle input { accent-color: var(--thread); width: 16px; height: 16px; }
+.rail .spacer { flex: 1; }
+
+.stage { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 18px 16px 6px; }
+.mic {
+  width: 74px; height: 74px; border-radius: 50%; border: 0; cursor: pointer; position: relative;
+  background: var(--thread); color: var(--thread-ink); display: grid; place-items: center;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--thread) 35%, transparent);
+  transition: transform .15s ease, background .2s ease;
+}
+.mic:hover { transform: scale(1.04); }
+.mic svg { width: 32px; height: 32px; }
+.mic[aria-pressed="true"] { background: var(--marigold); color: #241800; }
+.mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--marigold); opacity: .6;
+  animation: ring 1.6s ease-out infinite;
+}
+.mic[aria-pressed="true"]::after { animation-delay: .8s; }
+@keyframes ring { from { transform: scale(.9); opacity: .7; } to { transform: scale(1.35); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after { animation: none; } }
+.state { min-width: 0; display: grid; gap: 2px; }
+.state .s1 { font-weight: 700; font-size: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.state .s2 { color: var(--muted); font-size: 14px; }
+.timer { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--muted); font-size: 15px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: inline-block; }
+.listening .dot { background: var(--marigold); }
+
+.sheet { padding: 8px 16px 0; position: relative; }
+#transcript {
+  width: 100%; min-height: 280px; resize: vertical; border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 18px; background: var(--sheet); color: var(--ink);
+  font-size: 22px; line-height: 1.8; font-family: "Noto Sans Gurmukhi", var(--font-ui);
+}
+#transcript:focus { outline: none; border-color: var(--thread); }
+.hearing {
+  min-height: 1.8em; padding: 6px 4px 0; color: var(--muted); font-style: italic; overflow-wrap: anywhere;
+}
+.hearing:empty::before { content: attr(data-empty); font-style: normal; opacity: .7; }
+.example-note {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; padding: 8px 12px; border-radius: 10px;
+  background: var(--warn-bg); color: var(--warn-ink); font-size: 14px;
+}
+.example-note button { border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 700; }
+
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px 16px; }
+.count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; margin-right: auto; }
+.btn {
+  border: 1px solid var(--line); background: var(--cloth); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.btn.ghost-danger { color: var(--thread); }
+
+.banner { display: none; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: 15px; }
+.banner.show { display: block; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 16px);
+  background: var(--ink); color: var(--sheet); padding: 10px 16px; border-radius: 12px; opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast button { border: 0; background: transparent; color: var(--marigold); font-weight: 700; cursor: pointer; }
+
+/* ---------- help ---------- */
+.help { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.help h2 { font-family: var(--font-display); font-weight: 400; font-size: 24px; margin: 0 0 8px; }
+.help ol, .help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink); }
+.help li span.g { font-family: "Noto Sans Gurmukhi", var(--font-ui); }
+.help .muted { color: var(--muted); font-size: 14px; }
+table.cmds { border-collapse: collapse; width: 100%; font-size: 15px; }
+table.cmds td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.cmds td:last-child { text-align: right; font-weight: 700; padding-left: 12px; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; background: var(--sheet); }
+
+@media (max-width: 560px) {
+  .stage { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .state .s1 { justify-content: center; }
+  #transcript { font-size: 20px; min-height: 240px; }
+  .count { width: 100%; }
+}
+
+/* printing = "Save as PDF": only the text, in the chosen font */
+@media print {
+  body { background: #fff; color: #000; padding: 0; }
+  body > *:not(#printOut) { display: none !important; }
+  #printOut { display: block !important; white-space: pre-wrap; font-size: 14pt; line-height: 1.8; }
+}
+#printOut { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="g" lang="pa">ਬੋਲੋ</span><span class="l">Bolo Punjabi</span></div>
+    <div class="top-actions">
+      <button class="chip-btn" id="themeBtn" type="button" aria-label="Switch light or dark">◐ <span id="themeLabel">Theme</span></button>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h1 lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ, ਲਿਖੋ ਗੁਰਮੁਖੀ</h1>
+    <p>Speak Punjabi and watch it appear as editable Gurmukhi text. Also works for Hindi, Urdu and English. Free, no sign-up, nothing to install.</p>
+  </section>
+
+  <div class="banner" id="banner" role="alert"></div>
+
+  <section class="converter" aria-label="Speech to text converter">
+    <div class="rail">
+      <div class="field">
+        <label for="lang">Language</label>
+        <select id="lang">
+          <option value="pa">ਪੰਜਾਬੀ · Punjabi (Gurmukhi)</option>
+          <option value="hi">हिन्दी · Hindi</option>
+          <option value="ur">اردو · Urdu</option>
+          <option value="en-IN">English (India)</option>
+          <option value="en-US">English (US)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="font">Font</label>
+        <select id="font"></select>
+      </div>
+      <div class="field">
+        <label for="size">Text size <span id="sizeVal">22</span>px</label>
+        <input type="range" id="size" min="14" max="44" value="22" />
+      </div>
+      <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">੧੨੩</span></label>
+      <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
+    </div>
+
+    <div class="stage">
+      <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start speaking">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+      </button>
+      <div class="state" id="state" aria-live="polite">
+        <div class="s1"><span class="dot"></span><span id="status">Ready to listen</span><span class="timer" id="timer">00:00</span></div>
+        <div class="s2" id="hint">Press the mic (or <kbd>Ctrl</kbd>+<kbd>M</kbd>) and start speaking. Text goes where your cursor is.</div>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <p class="example-note" id="exampleNote" hidden>This is example text. <button type="button" id="clearExample">Clear it and start</button></p>
+      <textarea id="transcript" spellcheck="false" aria-label="Transcript" placeholder="ਇੱਥੇ ਤੁਹਾਡੀ ਗੱਲ ਲਿਖੀ ਜਾਵੇਗੀ…"></textarea>
+      <div class="hearing" id="hearing" data-empty="Words you're saying appear here first, then move into the text." aria-live="off"></div>
+    </div>
+
+    <div class="bar">
+      <span class="count" id="count">0 words · 0 characters</span>
+      <button class="btn primary" id="copyBtn" type="button">Copy</button>
+      <button class="btn" id="txtBtn" type="button">Download TXT</button>
+      <button class="btn" id="docBtn" type="button">Download DOC</button>
+      <button class="btn" id="pdfBtn" type="button">Print / PDF</button>
+      <button class="btn ghost-danger" id="clearBtn" type="button">Clear</button>
+    </div>
+  </section>
+
+  <section class="help">
+    <div>
+      <h2>How it works</h2>
+      <ol>
+        <li>Press the mic and allow microphone access when your browser asks.</li>
+        <li>Speak naturally. Pause briefly between sentences.</li>
+        <li>Fix anything by typing, then copy or download. You can keep talking while you edit.</li>
+      </ol>
+      <p class="muted">Works best in the latest Chrome or Edge, online. Your speech is processed by the browser's speech service; this page keeps your text only on your device.</p>
+    </div>
+    <div>
+      <h2>Say the punctuation</h2>
+      <table class="cmds" id="cmdTable" aria-label="Spoken punctuation commands"></table>
+      <p class="muted">Turn off “Spoken punctuation” if you need these words written out.</p>
+    </div>
+    <div>
+      <h2>Tips for better results</h2>
+      <ul>
+        <li>Use a headset or keep the mic 15–20 cm from your mouth.</li>
+        <li>Quiet room, steady pace, clear endings.</li>
+        <li>Check names, places, numbers and English words afterwards.</li>
+        <li>The result is a first draft. Read it through before you share it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Bolo Punjabi · Your text is saved only in this browser so you don't lose it. Shortcuts: <kbd>Ctrl</kbd>+<kbd>M</kbd> start/stop · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copy all.</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAction" hidden></button></div>
+<div id="printOut"></div>
+
+<script>
+(() => {
+  // ---------------- languages ----------------
+  const LANGS = {
+    pa: {
+      codes: ['pa-Guru-IN', 'pa-IN'], dir: 'ltr', script: 'gurmukhi', status: 'Listening in Punjabi…',
+      fonts: ['Noto Sans Gurmukhi', 'Noto Serif Gurmukhi', 'Mukta Mahee', 'Anek Gurmukhi', 'Baloo Paaji 2', 'Tiro Gurmukhi', 'Raavi', 'AnmolUni'],
+      placeholder: 'ਇੱਥੇ ਤੁਹਾਡੀ ਗੱਲ ਲਿਖੀ ਜਾਵੇਗੀ…',
+      example: 'ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਜੀ। ਅੱਜ ਮੌਸਮ ਬਹੁਤ ਸੋਹਣਾ ਹੈ, ਚਲੋ ਬਾਹਰ ਸੈਰ ਕਰਨ ਚੱਲੀਏ।\nਕੀ ਤੁਸੀਂ ਸ਼ਾਮ ਨੂੰ ਵਿਹਲੇ ਹੋ?',
+      cmds: [
+        [['ਡੰਡੀ', 'ਪੂਰਨ ਵਿਰਾਮ', 'ਫੁੱਲ ਸਟਾਪ'], '।'],
+        [['ਕੌਮਾ', 'ਕਾਮਾ', 'ਵਿਸ਼ਰਾਮ ਚਿੰਨ੍ਹ'], ','],
+        [['ਪ੍ਰਸ਼ਨ ਚਿੰਨ੍ਹ', 'ਸਵਾਲੀਆ ਨਿਸ਼ਾਨ', 'ਪ੍ਰਸ਼ਨਵਾਚਕ ਚਿੰਨ੍ਹ'], '?'],
+        [['ਵਿਸਮਿਕ ਚਿੰਨ੍ਹ', 'ਵਿਸਮਿਕ'], '!'],
+        [['ਨਵਾਂ ਪੈਰਾ', 'ਨਵਾਂ ਪੈਰਾਗ੍ਰਾਫ'], '\n\n'],
+        [['ਨਵੀਂ ਲਾਈਨ', 'ਨਵੀਂ ਸਤਰ', 'ਅਗਲੀ ਲਾਈਨ'], '\n']
+      ]
+    },
+    hi: {
+      codes: ['hi-IN'], dir: 'ltr', script: 'devanagari', status: 'Listening in Hindi…',
+      fonts: ['Noto Sans Devanagari', 'Hind', 'Tiro Devanagari Hindi', 'Mangal'],
+      placeholder: 'यहाँ आपकी बात लिखी जाएगी…',
+      example: 'नमस्ते जी। आज मौसम बहुत अच्छा है, चलिए बाहर घूमने चलते हैं।',
+      cmds: [
+        [['पूर्ण विराम', 'फुल स्टॉप'], '।'], [['अल्पविराम', 'कॉमा'], ','],
+        [['प्रश्नवाचक चिह्न', 'प्रश्न चिह्न', 'प्रश्न चिन्ह'], '?'], [['विस्मयादिबोधक चिह्न'], '!'],
+        [['नया पैराग्राफ', 'नया अनुच्छेद'], '\n\n'], [['नई लाइन', 'अगली लाइन'], '\n']
+      ]
+    },
+    ur: {
+      codes: ['ur-PK', 'ur-IN'], dir: 'rtl', script: 'urdu', status: 'Listening in Urdu…',
+      fonts: ['Noto Nastaliq Urdu', 'Gulzar', 'Noto Naskh Arabic', 'Jameel Noori Nastaleeq'],
+      placeholder: 'یہاں آپ کی بات لکھی جائے گی…',
+      example: 'السلام علیکم۔ آج موسم بہت اچھا ہے، چلیں باہر سیر کو چلتے ہیں۔',
+      cmds: [
+        [['فل اسٹاپ', 'ختمہ'], '۔'], [['کاما', 'سکتہ'], '،'], [['سوالیہ نشان'], '؟'],
+        [['نیا پیراگراف'], '\n\n'], [['نئی لائن', 'اگلی لائن'], '\n']
+      ]
+    },
+    'en-IN': {
+      codes: ['en-IN'], dir: 'ltr', script: 'latin', status: 'Listening in English…',
+      fonts: ['Mukta Mahee', 'Noto Sans Gurmukhi', 'Georgia', 'Arial'],
+      placeholder: 'Your words will appear here…',
+      example: 'Hello! The weather is lovely today, shall we go for a walk?',
+      cmds: [
+        [['full stop', 'period'], '.'], [['comma'], ','], [['question mark'], '?'], [['exclamation mark'], '!'],
+        [['new paragraph'], '\n\n'], [['new line', 'next line'], '\n']
+      ]
+    }
+  };
+  LANGS['en-US'] = { ...LANGS['en-IN'], codes: ['en-US'] };
+
+  // ---------------- elements ----------------
+  const $ = (id) => document.getElementById(id);
+  const ta = $('transcript'), hearing = $('hearing'), mic = $('mic'), langSel = $('lang'), fontSel = $('font');
+  const size = $('size'), numerals = $('numerals'), spoken = $('spoken');
+
+  // ---------------- saved prefs + draft (this browser only) ----------------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('bolo.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('bolo.' + k, JSON.stringify(v)); } catch {} }
+  };
+
+  let lang = store.get('lang', 'pa');
+  if (!LANGS[lang]) lang = 'pa';
+  langSel.value = lang;
+  size.value = store.get('size', 22);
+  numerals.checked = store.get('numerals', false);
+  spoken.checked = store.get('spoken', true);
+
+  function L() { return LANGS[lang]; }
+
+  function fillFonts() {
+    const saved = store.get('font.' + lang, L().fonts[0]);
+    fontSel.innerHTML = '';
+    for (const f of L().fonts) {
+      const o = document.createElement('option');
+      o.value = f; o.textContent = f; o.style.fontFamily = `"${f}"`;
+      fontSel.appendChild(o);
+    }
+    fontSel.value = L().fonts.includes(saved) ? saved : L().fonts[0];
+  }
+
+  function applyLook() {
+    const fam = `"${fontSel.value}", ${L().script === 'urdu' ? '"Noto Nastaliq Urdu", "Noto Naskh Arabic"' : L().script === 'devanagari' ? '"Noto Sans Devanagari"' : '"Noto Sans Gurmukhi"'}, system-ui, sans-serif`;
+    ta.style.fontFamily = fam;
+    hearing.style.fontFamily = fam;
+    ta.style.fontSize = size.value + 'px';
+    ta.style.lineHeight = L().script === 'urdu' ? '2.3' : '1.8';
+    $('sizeVal').textContent = size.value;
+    ta.dir = L().dir; hearing.dir = L().dir;
+    ta.lang = { pa: 'pa', hi: 'hi', ur: 'ur' }[lang] || 'en';
+    ta.placeholder = L().placeholder;
+    $('numeralsWrap').hidden = lang !== 'pa';
+    renderCmds();
+  }
+
+  function renderCmds() {
+    const t = $('cmdTable');
+    t.innerHTML = '';
+    for (const [words, mark] of L().cmds) {
+      const tr = document.createElement('tr');
+      const a = document.createElement('td'); a.textContent = words[0]; a.lang = ta.lang; a.dir = L().dir;
+      const b = document.createElement('td'); b.textContent = mark === '\n' ? '↵ new line' : mark === '\n\n' ? '¶ new paragraph' : mark;
+      tr.append(a, b); t.appendChild(tr);
+    }
+  }
+
+  // ---------------- text processing ----------------
+  const GUR_DIGITS = '੦੧੨੩੪੫੬੭੮੯';
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  function processChunk(text) {
+    let s = text.trim();
+    if (!s) return '';
+    if (spoken.checked) {
+      for (const [words, mark] of L().cmds) {
+        for (const w of words) {
+          s = s.replace(new RegExp('\\s*' + esc(w) + '(?=\\s|$)', lang.startsWith('en') ? 'gi' : 'g'), mark === '\n' || mark === '\n\n' ? mark : mark);
+        }
+      }
+      // tidy spaces around punctuation and line breaks
+      s = s.replace(/[ \t]+([।,?!.۔،؟])/g, '$1').replace(/[ \t]*\n[ \t]*/g, '\n');
+    }
+    if (lang === 'pa' && numerals.checked) s = s.replace(/[0-9]/g, (d) => GUR_DIGITS[+d]);
+    return s;
+  }
+
+  // Put recognised text where the cursor is, with sensible spacing.
+  function insertText(chunk) {
+    if (!chunk) return;
+    if (!$('exampleNote').hidden) clearExample();
+    const start = ta.selectionStart ?? ta.value.length, end = ta.selectionEnd ?? ta.value.length;
+    const before = ta.value.slice(0, start), after = ta.value.slice(end);
+    const needSpace = before && !/[\s\n]$/.test(before) && !/^[\n।,?!.۔،؟]/.test(chunk);
+    let piece = (needSpace ? ' ' : '') + chunk;
+    if (after && !/^[\s\n।,?!.۔،؟]/.test(after) && !/\n$/.test(piece)) piece += ' ';
+    if (lang.startsWith('en') && (!before.trim() || /[.?!]\s*$|\n\s*$/.test(before))) {
+      piece = piece.replace(/^(\s*)(\p{Ll})/u, (m, sp, c) => sp + c.toUpperCase());
+    }
+    ta.value = before + piece + after;
+    const pos = before.length + piece.length;
+    ta.setSelectionRange(pos, pos);
+    onTextChange();
+  }
+
+  function counts() {
+    const t = ta.value.trim();
+    const words = t ? t.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length : 0;
+    $('count').textContent = `${words} word${words === 1 ? '' : 's'} · ${ta.value.length} characters`;
+  }
+
+  let saveT;
+  function onTextChange() {
+    counts();
+    clearTimeout(saveT);
+    saveT = setTimeout(() => { if ($('exampleNote').hidden) store.set('draft', ta.value); }, 300);
+  }
+
+  // ---------------- speech recognition ----------------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null;
+
+  function banner(msg) { const b = $('banner'); b.textContent = msg; b.classList.toggle('show', !!msg); }
+  function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
+
+  if (!SR) {
+    banner('This browser can’t turn speech into text. Please open this page in the latest Google Chrome or Microsoft Edge on a computer or Android phone.');
+    mic.disabled = true;
+    setStatus('Speech recognition not available', 'You can still type, edit, copy and download text here.');
+  }
+
+  function fmt(ms) { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+
+  function startTimer() {
+    started = Date.now() - (startTimer.carry || 0);
+    clearInterval(tick);
+    tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - started)), 250);
+  }
+
+  function makeRec() {
+    const r = new SR();
+    r.lang = L().codes[codeIdx] || L().codes[0];
+    r.continuous = true;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+    r.onstart = () => {
+      $('state').classList.add('listening');
+      mic.setAttribute('aria-pressed', 'true');
+      mic.setAttribute('aria-label', 'Stop');
+      setStatus(L().status, 'Speak now. Press the mic again to stop.');
+      banner('');
+    };
+    r.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) insertText(processChunk(res[0].transcript));
+        else interim += res[0].transcript;
+      }
+      hearing.textContent = interim;
+    };
+    r.onerror = (e) => {
+      if (e.error === 'no-speech' || e.error === 'aborted') return; // keep going quietly
+      if (e.error === 'language-not-supported' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
+      wanted = false;
+      const msgs = {
+        'not-allowed': 'Microphone access is blocked. Click the lock or camera icon in the address bar, allow the microphone for this site, then press the mic again.',
+        'service-not-allowed': 'Your browser has speech recognition turned off for this page. Use Chrome or Edge, and open the page over https:// or as a local file.',
+        'audio-capture': 'No microphone was found. Plug one in or check your sound settings, then try again.',
+        network: 'The speech service couldn’t be reached. Check your internet connection and try again.',
+        'language-not-supported': 'Your browser doesn’t support this language for speech recognition. Try the latest Chrome.'
+      };
+      banner(msgs[e.error] || 'Speech recognition stopped (' + e.error + '). Press the mic to try again.');
+    };
+    r.onend = () => {
+      hearing.textContent = '';
+      // Browsers stop after a pause; carry on until you press stop.
+      if (wanted) { try { rec = makeRec(); rec.start(); return; } catch {} }
+      stopUi();
+    };
+    return r;
+  }
+
+  function stopUi() {
+    wanted = false;
+    $('state').classList.remove('listening');
+    mic.setAttribute('aria-pressed', 'false');
+    mic.setAttribute('aria-label', 'Start speaking');
+    clearInterval(tick);
+    startTimer.carry = 0;
+    setStatus('Ready to listen', 'Press the mic (or Ctrl+M) and start speaking. Text goes where your cursor is.');
+  }
+
+  function start() {
+    if (!SR || wanted) return;
+    wanted = true; codeIdx = 0;
+    if (document.activeElement !== ta) ta.setSelectionRange(ta.value.length, ta.value.length);
+    try { rec = makeRec(); rec.start(); startTimer(); }
+    catch (e) { wanted = false; banner('Couldn’t start the microphone. Reload the page and try again.'); }
+  }
+  function stop() {
+    wanted = false;
+    try { rec && rec.stop(); } catch {}
+    stopUi();
+  }
+  mic.addEventListener('click', () => (wanted ? stop() : start()));
+
+  // ---------------- actions ----------------
+  function toast(msg, actionLabel, action) {
+    const t = $('toast'), b = $('toastAction');
+    $('toastText').textContent = msg;
+    b.hidden = !actionLabel;
+    b.textContent = actionLabel || '';
+    b.onclick = () => { action && action(); t.classList.remove('show'); };
+    t.classList.add('show');
+    clearTimeout(t._h);
+    t._h = setTimeout(() => t.classList.remove('show'), actionLabel ? 8000 : 2200);
+  }
+
+  async function copyAll() {
+    if (!ta.value.trim()) return toast('Nothing to copy yet');
+    try { await navigator.clipboard.writeText(ta.value); toast('Copied ✓'); }
+    catch { ta.focus(); ta.select(); toast('Press Ctrl+C to copy the selected text'); }
+  }
+
+  function fileName(ext) {
+    const d = new Date();
+    return `bolo-${lang}-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}.${ext}`;
+  }
+  function save(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('Downloaded ' + name);
+  }
+  const htmlEsc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  $('copyBtn').addEventListener('click', copyAll);
+  $('txtBtn').addEventListener('click', () => {
+    if (!ta.value.trim()) return toast('Nothing to download yet');
+    save(new Blob(['﻿' + ta.value], { type: 'text/plain;charset=utf-8' }), fileName('txt'));
+  });
+  $('docBtn').addEventListener('click', () => {
+    if (!ta.value.trim()) return toast('Nothing to download yet');
+    const paras = ta.value.split(/\n{2,}/).map((p) => `<p>${htmlEsc(p).replace(/\n/g, '<br>')}</p>`).join('');
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Transcript</title>
+<style>body{font-family:"${fontSel.value}","Nirmala UI","Raavi",sans-serif;font-size:${Math.round(size.value * 0.75)}pt;line-height:1.7;direction:${L().dir}}</style></head><body dir="${L().dir}">${paras}</body></html>`;
+    save(new Blob(['﻿' + html], { type: 'application/msword' }), fileName('doc'));
+  });
+  $('pdfBtn').addEventListener('click', () => {
+    if (!ta.value.trim()) return toast('Nothing to print yet');
+    const p = $('printOut');
+    p.textContent = ta.value;
+    p.style.fontFamily = ta.style.fontFamily;
+    p.dir = L().dir;
+    window.print(); // choose "Save as PDF" as the printer
+  });
+
+  let lastCleared = '';
+  $('clearBtn').addEventListener('click', () => {
+    if (!ta.value) return;
+    lastCleared = ta.value;
+    ta.value = '';
+    $('exampleNote').hidden = true;
+    onTextChange();
+    toast('Text cleared', 'Undo', () => { ta.value = lastCleared; onTextChange(); });
+  });
+
+  function clearExample() {
+    ta.value = '';
+    $('exampleNote').hidden = true;
+    onTextChange();
+  }
+  $('clearExample').addEventListener('click', () => { clearExample(); ta.focus(); });
+
+  ta.addEventListener('input', () => { if (!$('exampleNote').hidden) $('exampleNote').hidden = true; onTextChange(); });
+
+  // ---------------- settings ----------------
+  langSel.addEventListener('change', () => {
+    const was = wanted;
+    if (was) stop();
+    lang = langSel.value; store.set('lang', lang);
+    fillFonts(); applyLook();
+    if (!$('exampleNote').hidden) { ta.value = L().example; counts(); }
+    if (was) setTimeout(start, 300);
+  });
+  fontSel.addEventListener('change', () => { store.set('font.' + lang, fontSel.value); applyLook(); });
+  size.addEventListener('input', () => { store.set('size', +size.value); applyLook(); });
+  numerals.addEventListener('change', () => store.set('numerals', numerals.checked));
+  spoken.addEventListener('change', () => store.set('spoken', spoken.checked));
+
+  // theme: System → Light → Dark
+  const THEMES = ['system', 'light', 'dark'];
+  let theme = store.get('theme', 'system');
+  function applyTheme() {
+    if (theme === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', theme);
+    $('themeLabel').textContent = { system: 'Auto', light: 'Light', dark: 'Dark' }[theme];
+  }
+  $('themeBtn').addEventListener('click', () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; store.set('theme', theme); applyTheme();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.shiftKey && e.key.toLowerCase() === 'm') { e.preventDefault(); wanted ? stop() : start(); }
+    if (mod && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyAll(); }
+  });
+
+  // ---------------- first view ----------------
+  fillFonts(); applyLook(); applyTheme();
+  const draft = store.get('draft', '');
+  if (draft) { ta.value = draft; }
+  else { ta.value = L().example; $('exampleNote').hidden = false; }
+  counts();
+  window.addEventListener('beforeunload', () => { if (wanted) stop(); });
+})();
+</script>
+</body>
+</html>
