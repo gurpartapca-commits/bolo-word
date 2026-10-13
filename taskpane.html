@@ -680,6 +680,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       if (e.error === 'no-speech' || e.error === 'aborted') return;
       if (e.error === 'phrases-not-supported') { noPhrases = true; return; }
       if (e.error === 'language-not-supported' && codeIdx < codes().length - 1) { codeIdx++; return; }
+      if (e.error === 'network' && codeIdx < codes().length - 1) { codeIdx++; return; }
       wanted = false;
       const key = { 'not-allowed': 'blocked', 'service-not-allowed': 'unsupported', network: 'network', 'audio-capture': 'nomic', 'language-not-supported': 'lang' }[e.error];
       showBanner(key ? HELP[key] : 'Listening stopped (' + e.error + '). Press Try again.', key !== 'nomic' && key !== 'network');

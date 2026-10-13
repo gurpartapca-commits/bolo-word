@@ -661,6 +661,8 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       if (e.error === 'no-speech' || e.error === 'aborted') return; // keep going quietly
       if (e.error === 'phrases-not-supported') { noPhrases = true; return; } // restarts without them
       if (e.error === 'language-not-supported' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
+      // Edge can report "network" when it doesn't support a language code, so try the other code too.
+      if (e.error === 'network' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
       wanted = false;
       const msgs = {
         'not-allowed': 'Microphone access is blocked. Click the lock or camera icon in the address bar, allow the microphone for this site, then press the mic again.',

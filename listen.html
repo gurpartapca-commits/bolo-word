@@ -49,7 +49,7 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
   const name = q.get('name') || '';
   const $ = (id) => document.getElementById(id);
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, wanted = true, codeIdx = 0, ready = false;
+  let rec = null, wanted = true, codeIdx = 0, ready = false, netTries = 0;
   document.getElementById('heard').dir = q.get('dir') || 'ltr';
 
   function send(msg) {
@@ -70,7 +70,7 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
-        if (res.isFinal) send({ t: 'final', alts: Array.from(res, (a) => a.transcript) });
+        if (res.isFinal) { netTries = 0; send({ t: 'final', alts: Array.from(res, (a) => a.transcript) }); }
         else interim += res[0].transcript;
       }
       $('heard').textContent = interim;
@@ -79,11 +79,15 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;
       if (e.error === 'language-not-supported' && codeIdx < codes.length - 1) { codeIdx++; return; }
+      // Chrome's speech service sometimes drops the connection; try again quietly a couple of times.
+      // Edge can report "network" when it doesn't support a language code, so try the other code too.
+      if (e.error === 'network' && codeIdx < codes.length - 1) { codeIdx++; $('status').textContent = 'Reconnecting…'; return; }
+      if (e.error === 'network' && netTries < 3) { netTries++; $('status').textContent = 'Reconnecting…'; return; }
       wanted = false;
       const msg = {
         'not-allowed': 'The browser blocked the microphone for this window. Click the icon at the left of the address bar, allow the microphone, then close this window and press the mic in Word again.',
         'audio-capture': 'No microphone was found.',
-        network: 'The speech service couldn’t be reached. Check your internet connection.'
+        network: 'The browser couldn’t reach its speech service. This happens in Chrome when something blocks Google’s speech server (a VPN, firewall, antivirus or extension). Microsoft Edge uses a different service and usually works.'
       }[e.error] || 'Listening stopped (' + e.error + ').';
       warn(msg);
       send({ t: 'error', error: e.error });
