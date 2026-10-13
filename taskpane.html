@@ -91,6 +91,11 @@ button { cursor: pointer; }
   margin: 0 14px 14px; padding: 9px 11px; border-radius: var(--radius); background: var(--warn-bg); color: var(--warn-ink); font-size: 12.5px;
 }
 .banner .acts { margin-top: 7px; display: flex; gap: 6px; flex-wrap: wrap; }
+.banner .diag { margin-top: 6px; border: 0; padding: 0; }
+.banner .diag summary { font-weight: 400; font-size: 11.5px; opacity: .8; }
+.banner .diag summary::before { content: none; }
+.banner .diag code { display: block; margin-top: 4px; font: 11px/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-all; user-select: all; }
+.usingwin { font-size: 12px; color: var(--muted); text-align: center; margin: -6px 14px 12px; }
 
 /* mode switch */
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--soft); border-radius: var(--radius); padding: 2px; }
@@ -194,7 +199,8 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     </div>
     <div class="banner" id="banner" role="alert" hidden>
       <div id="bannerText"></div>
-      <div class="acts"><button class="btn" type="button" id="retryBtn">Try again</button><button class="btn" type="button" id="webBtn">Open Bolo in browser</button></div>
+      <div class="acts"><button class="btn primary" type="button" id="winBtn" hidden>Use a listening window</button><button class="btn" type="button" id="retryBtn">Try again</button><button class="btn" type="button" id="webBtn">Open Bolo in browser</button></div>
+      <details class="diag"><summary>Details</summary><code id="diag"></code></details>
     </div>
     <div class="hearing" id="hearing" data-empty="What you're saying shows here first." aria-live="off"></div>
   </section>
@@ -527,6 +533,20 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
   });
 
   // ================= microphone permission =================
+  // What happened, for the Details line under an error.
+  const diag = {};
+  function writeDiag() {
+    try {
+      diag.v = 'panel-3';
+      diag.platform = Office.context && Office.context.platform;
+      diag.dpSet = !!(Office.context.requirements && Office.context.requirements.isSetSupported('DevicePermission', '1.1'));
+      diag.dpApi = !!(Office.devicePermission || (Office.context && Office.context.devicePermission));
+      diag.policy = document.featurePolicy ? document.featurePolicy.allowsFeature('microphone') : 'n/a';
+      diag.sr = !!SR;
+    } catch {}
+    $('diag').textContent = Object.entries(diag).map(([k, v]) => k + '=' + v).join(' · ');
+  }
+
   async function ensureMic() {
     // Word on the web: Word must grant the panel the microphone. It shows its own Allow box.
     // requestPermissions() resolves true on a first-time grant (the panel must then reload),
@@ -536,6 +556,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     if (onWeb && dp && dp.requestPermissions && Office.DevicePermissionType) {
       try {
         const firstGrant = await dp.requestPermissions([Office.DevicePermissionType.microphone]);
+        diag.request = firstGrant ? 'granted-now' : 'already';
         if (firstGrant) {
           store.set('resumeMic', Date.now());
           setStatus('Microphone allowed', 'Reloading the panel…');
@@ -543,18 +564,65 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
           return 'reloading';
         }
       } catch (e) {
-        return 'denied';
+        diag.request = 'error:' + ((e && (e.message || e.code)) || e);
+        if (/denied/i.test(diag.request)) return 'denied';
       }
-    }
+    } else diag.request = 'not-available';
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
         const s = await navigator.mediaDevices.getUserMedia({ audio: true });
         s.getTracks().forEach((t) => t.stop());
+        diag.gum = 'ok';
       } catch (e) {
+        diag.gum = (e && e.name) || 'error';
         return e && e.name === 'NotFoundError' ? 'nomic' : 'blocked';
       }
     }
     return 'ok';
+  }
+
+  // ---------- listening window: a small browser window that listens and sends words here ----------
+  let dialog = null;
+  const onWebNow = () => { try { return Office.context.platform === Office.PlatformType.OfficeOnline; } catch { return false; } };
+  function openListenWindow() {
+    if (dialog) return;
+    showBanner('');
+    const u = new URL('listen.html', location.href);
+    u.searchParams.set('codes', codes().join(','));
+    u.searchParams.set('name', L().name);
+    u.searchParams.set('dir', L().dir);
+    setStatus('Opening the listening window…', 'If Word asks, choose Allow.');
+    Office.context.ui.displayDialogAsync(u.href, { height: 38, width: 28, promptBeforeOpen: false }, (res) => {
+      if (res.status !== Office.AsyncResultStatus.Succeeded) {
+        diag.dialog = 'fail:' + (res.error && res.error.code);
+        stopUi();
+        const why = res.error && res.error.code === 12009 ? 'The window was blocked. Allow pop-ups for this site, then try again.' : 'Couldn’t open the listening window (' + (res.error && res.error.code) + ').';
+        showBanner(why, true); return;
+      }
+      dialog = res.value;
+      store.set('useWindow', true);
+      wanted = true;
+      $('state').classList.add('listening');
+      mic.setAttribute('aria-pressed', 'true'); mic.setAttribute('aria-label', 'Stop');
+      setStatus('Listening · ' + L().name, 'Speaking through the small window. Press the square or close it to stop.');
+      t0 = Date.now(); clearInterval(tick);
+      tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500);
+      dialog.addEventHandler(Office.EventType.DialogMessageReceived, (arg) => {
+        let m; try { m = JSON.parse(arg.message); } catch { return; }
+        if (m.t === 'final') {
+          const text = autoFix(clean(bestAlternative(m.alts.map((t) => ({ transcript: t })))));
+          if (mode === 'live') insertIntoWord(text); else addToDraft(text);
+          hearing.textContent = '';
+        } else if (m.t === 'interim') hearing.textContent = m.text;
+        else if (m.t === 'stop') closeListenWindow();
+        else if (m.t === 'error') { diag.window = m.error; writeDiag(); }
+      });
+      dialog.addEventHandler(Office.EventType.DialogEventReceived, () => { dialog = null; stopUi(); });
+    });
+  }
+  function closeListenWindow() {
+    if (dialog) { try { dialog.close(); } catch {} dialog = null; }
+    stopUi();
   }
   const HELP = {
     denied: 'The microphone wasn’t allowed. Press Try again and choose “Allow” in the box Word shows.',
@@ -574,7 +642,9 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
   function showBanner(msg, offerWeb = true) {
     $('bannerText').textContent = msg || '';
     $('webBtn').hidden = !offerWeb;
+    $('winBtn').hidden = true;
     $('banner').hidden = !msg;
+    if (msg) writeDiag();
   }
 
   function makeRec() {
@@ -638,15 +708,23 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     const m = await ensureMic();
     if (m === 'reloading') return;
     if (!wanted) return;
-    if (m !== 'ok') { stopUi(); showBanner(HELP[m], m !== 'nomic'); return; }
+    if (m !== 'ok') {
+      stopUi(); writeDiag();
+      if ((m === 'blocked' || m === 'denied') && onWebNow()) {
+        showBanner('Word isn’t letting this panel use the microphone. Use a listening window instead: a small window opens, you speak, and the words still go into your document here.', true);
+        $('winBtn').hidden = false;
+      } else showBanner(HELP[m], m !== 'nomic');
+      return;
+    }
     try {
       rec = makeRec(); rec.start();
       t0 = Date.now(); clearInterval(tick);
       tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500);
     } catch { stopUi(); showBanner('Couldn’t start listening. Close and reopen the panel, then try again.'); }
   }
-  function stop() { wanted = false; try { rec && rec.stop(); } catch {} stopUi(); }
-  const toggle = () => (wanted ? stop() : start());
+  function stop() { wanted = false; try { rec && rec.stop(); } catch {} if (dialog) closeListenWindow(); else stopUi(); }
+  // Once the listening window has worked, go straight to it (opening it right on the click avoids pop-up blocking).
+  const toggle = () => (wanted || dialog ? stop() : store.get('useWindow', false) && onWebNow() ? openListenWindow() : start());
 
   // ================= vocabulary (Mahan Kosh + my words) =================
   // Headwords and frequent words from Bhai Kahan Singh Nabha's Mahan Kosh, most common first
@@ -906,7 +984,8 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
 
   // ================= events =================
   mic.addEventListener('click', toggle);
-  $('retryBtn').addEventListener('click', () => { showBanner(''); start(); });
+  $('retryBtn').addEventListener('click', () => { showBanner(''); store.set('useWindow', false); start(); });
+  $('winBtn').addEventListener('click', openListenWindow);
   const WEB_URL = new URL('index.html', location.href).href;
   $('webBtn').addEventListener('click', () => { try { Office.context.ui.openBrowserWindow(WEB_URL); } catch { window.open(WEB_URL, '_blank'); } });
   $('undoBtn').addEventListener('click', undoLast);
@@ -916,7 +995,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     const was = wanted; if (was) stop();
     lang = b.dataset.lang; store.set('lang', lang); renderLang();
     updateVocabStat(); fillMyWords(); $('checkOut').hidden = true; ignored = new Set();
-    if (was) setTimeout(start, 300);
+    if (was && !(store.get('useWindow', false) && onWebNow())) setTimeout(start, 300);
   }));
   $('modeLive').addEventListener('click', () => { mode = 'live'; store.set('mode', mode); renderMode(); });
   $('modeDraft').addEventListener('click', () => { mode = 'draft'; store.set('mode', mode); renderMode(); });

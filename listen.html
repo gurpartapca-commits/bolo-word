@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bolo · Listening</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Sans+Devanagari&family=Noto+Naskh+Arabic&display=swap" />
+<style>
+/* A small window that only listens. It sends what it hears to the Bolo panel in Word. */
+:root { --bg: #faf9f8; --card: #fff; --ink: #242424; --muted: #616161; --line: #e0e0e0; --soft: #f3f2f1; --accent: #b4235a; --live: #e9a100; --warn-bg: #fff4ce; --warn-ink: #5c4400; }
+@media (prefers-color-scheme: dark) { :root { --bg: #1f1f1f; --card: #292929; --ink: #f3f3f3; --muted: #b3b3b3; --line: #3d3d3d; --soft: #333; --accent: #ff6b9e; --live: #ffc23d; --warn-bg: #3b3014; --warn-ink: #ffe3a3; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 "Segoe UI", system-ui, sans-serif; display: grid; place-items: center; padding: 16px; }
+main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: center; text-align: center; }
+.mark { font-family: "Tiro Gurmukhi", "Noto Sans Gurmukhi", serif; font-size: 22px; color: var(--accent); }
+.orb { width: 84px; height: 84px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; position: relative; border: 0; cursor: pointer; }
+.orb svg { width: 34px; height: 34px; }
+.on .orb { background: var(--live); color: #241800; }
+.on .orb::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--live); animation: ring 1.5s ease-out infinite; }
+@keyframes ring { from { transform: scale(.92); opacity: .8; } to { transform: scale(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .on .orb::after { animation: none; } }
+.status { font-weight: 600; font-size: 16px; }
+.hint { color: var(--muted); font-size: 13px; }
+.heard { width: 100%; min-height: 56px; padding: 10px 12px; border-radius: 8px; background: var(--soft); font-family: "Noto Sans Gurmukhi", "Noto Sans Devanagari", "Noto Naskh Arabic", sans-serif; font-size: 18px; color: var(--muted); overflow-wrap: anywhere; }
+.heard:empty::before { content: "What you say shows here, then goes into Word."; font-family: "Segoe UI", system-ui, sans-serif; font-size: 13px; }
+.warn { width: 100%; padding: 10px 12px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink); font-size: 13px; text-align: left; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main id="main">
+  <div class="mark" lang="pa">ਬੋਲੋ</div>
+  <button class="orb" id="orb" type="button" aria-label="Stop listening" title="Stop">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+  </button>
+  <div class="status" id="status">Starting…</div>
+  <div class="hint" id="hint">Keep this small window open while you speak. Close it to stop.</div>
+  <div class="heard" id="heard"></div>
+  <div class="warn" id="warn" hidden></div>
+</main>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  const codes = (q.get('codes') || 'pa-IN').split(',');
+  const name = q.get('name') || '';
+  const $ = (id) => document.getElementById(id);
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, wanted = true, codeIdx = 0, ready = false;
+  document.getElementById('heard').dir = q.get('dir') || 'ltr';
+
+  function send(msg) {
+    try { if (ready) Office.context.ui.messageParent(JSON.stringify(msg)); } catch {}
+  }
+  function warn(text) { $('warn').textContent = text; $('warn').hidden = !text; }
+
+  function makeRec() {
+    const r = new SR();
+    r.lang = codes[codeIdx] || codes[0];
+    r.continuous = true; r.interimResults = true; r.maxAlternatives = 5;
+    r.onstart = () => {
+      document.body.classList.add('on');
+      $('status').textContent = 'Listening' + (name ? ' · ' + name : '');
+      warn(''); send({ t: 'state', on: true });
+    };
+    r.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) send({ t: 'final', alts: Array.from(res, (a) => a.transcript) });
+        else interim += res[0].transcript;
+      }
+      $('heard').textContent = interim;
+      send({ t: 'interim', text: interim });
+    };
+    r.onerror = (e) => {
+      if (e.error === 'no-speech' || e.error === 'aborted') return;
+      if (e.error === 'language-not-supported' && codeIdx < codes.length - 1) { codeIdx++; return; }
+      wanted = false;
+      const msg = {
+        'not-allowed': 'The browser blocked the microphone for this window. Click the icon at the left of the address bar, allow the microphone, then close this window and press the mic in Word again.',
+        'audio-capture': 'No microphone was found.',
+        network: 'The speech service couldn’t be reached. Check your internet connection.'
+      }[e.error] || 'Listening stopped (' + e.error + ').';
+      warn(msg);
+      send({ t: 'error', error: e.error });
+    };
+    r.onend = () => {
+      $('heard').textContent = '';
+      if (wanted) { try { rec = makeRec(); rec.start(); return; } catch {} }
+      document.body.classList.remove('on');
+      $('status').textContent = 'Stopped';
+      send({ t: 'state', on: false });
+    };
+    return r;
+  }
+
+  function begin() {
+    if (!SR) { warn('This browser can’t do speech recognition. Use Chrome or Edge.'); send({ t: 'error', error: 'unsupported' }); return; }
+    try { rec = makeRec(); rec.start(); } catch (e) { warn('Couldn’t start listening.'); send({ t: 'error', error: 'start' }); }
+  }
+
+  $('orb').addEventListener('click', () => { wanted = false; try { rec && rec.stop(); } catch {} send({ t: 'stop' }); });
+
+  Office.onReady(() => {
+    ready = true;
+    begin();
+  });
+})();
+</script>
+</body>
+</html>
