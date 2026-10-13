@@ -8,310 +8,602 @@
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Mukta+Mahee:wght@400;500;700&family=Noto+Sans+Gurmukhi:wght@400;600&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap" />
 <style>
+/* Built to sit beside a Word document: Word's own UI font and neutrals, one magenta accent (phulkari thread), nothing wider than the pane. */
 :root {
-  --cloth: #f4f5fa; --sheet: #ffffff; --ink: #1d2045; --muted: #5d6185; --line: #dfe1ee;
-  --thread: #c0245e; --thread-ink: #ffffff; --marigold: #e9a100; --ok: #1b8a5a;
-  --warn-bg: #fff4dc; --warn-ink: #6b4a00;
-  --font-display: "Tiro Gurmukhi", "Noto Serif Gurmukhi", Georgia, serif;
-  --font-ui: "Mukta Mahee", "Noto Sans Gurmukhi", "Segoe UI", system-ui, sans-serif;
+  --bg: #faf9f8; --panel: #ffffff; --ink: #242424; --muted: #616161; --line: #e0e0e0; --soft: #f3f2f1;
+  --accent: #b4235a; --accent-ink: #ffffff; --accent-soft: #fbeaf0;
+  --live: #e9a100; --live-ink: #2a1c00;
+  --warn-bg: #fff4ce; --warn-ink: #5c4400;
+  --ui: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, system-ui, sans-serif;
+  --script: "Noto Sans Gurmukhi", "Raavi", "Nirmala UI", "Noto Sans Devanagari", "Noto Naskh Arabic", var(--ui);
+  --radius: 6px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
-    --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
-    --warn-bg: #3a2e10; --warn-ink: #ffe2a3; color-scheme: dark;
+    --bg: #1f1f1f; --panel: #292929; --ink: #f3f3f3; --muted: #b3b3b3; --line: #3d3d3d; --soft: #333333;
+    --accent: #ff6b9e; --accent-ink: #2a0614; --accent-soft: #3a1f2a;
+    --live: #ffc23d; --live-ink: #241800; --warn-bg: #3b3014; --warn-ink: #ffe3a3; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
-  --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
-  --warn-bg: #3a2e10; --warn-ink: #ffe2a3; color-scheme: dark;
+  --bg: #1f1f1f; --panel: #292929; --ink: #f3f3f3; --muted: #b3b3b3; --line: #3d3d3d; --soft: #333333;
+  --accent: #ff6b9e; --accent-ink: #2a0614; --accent-soft: #3a1f2a;
+  --live: #ffc23d; --live-ink: #241800; --warn-bg: #3b3014; --warn-ink: #ffe3a3; color-scheme: dark;
 }
+:root[data-theme="light"] { color-scheme: light; }
+
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
-body { background: var(--cloth); color: var(--ink); font: 14px/1.5 var(--font-ui); padding: 14px; }
-button, select, input { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--thread); outline-offset: 2px; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--ui); padding: 12px 12px 20px; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.stack { display: grid; gap: 12px; }
 
-.brand { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
-.brand .g { font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--thread); }
-.brand .l { font-weight: 700; font-size: 15px; }
+/* header: wordmark + language pills */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mark { font-family: "Tiro Gurmukhi", var(--script); font-size: 22px; line-height: 1; color: var(--accent); }
+.langs { display: inline-flex; background: var(--soft); border-radius: 999px; padding: 2px; }
+.langs button {
+  border: 0; background: transparent; border-radius: 999px; min-width: 36px; height: 28px; padding: 0 9px;
+  font-family: var(--script); font-size: 14px; color: var(--muted);
+}
+.langs button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
 
-.card { background: var(--sheet); border: 1px solid var(--line); border-radius: 14px; padding: 16px 14px; }
-.stage { display: grid; justify-items: center; gap: 10px; text-align: center; }
+/* mic card */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.microw { display: flex; align-items: center; gap: 14px; padding: 14px; }
 .mic {
-  width: 84px; height: 84px; border-radius: 50%; border: 0; cursor: pointer; position: relative;
-  background: var(--thread); color: var(--thread-ink); display: grid; place-items: center;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--thread) 35%, transparent);
-  transition: transform .15s ease, background .2s ease;
+  flex: none; width: 64px; height: 64px; border-radius: 50%; border: 0; position: relative;
+  background: var(--accent); color: var(--accent-ink); display: grid; place-items: center;
+  transition: transform .12s ease, background .2s ease;
 }
-.mic:hover { transform: scale(1.04); }
-.mic:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-.mic svg { width: 34px; height: 34px; }
-.mic[aria-pressed="true"] { background: var(--marigold); color: #241800; }
-.mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after {
-  content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--marigold); opacity: .6;
-  animation: ring 1.6s ease-out infinite;
+.mic:hover:not(:disabled) { transform: scale(1.04); }
+.mic:disabled { opacity: .4; cursor: not-allowed; }
+.mic svg { width: 28px; height: 28px; }
+.mic .stop { display: none; }
+.mic[aria-pressed="true"] { background: var(--live); color: var(--live-ink); }
+.mic[aria-pressed="true"] .go { display: none; }
+.mic[aria-pressed="true"] .stop { display: block; }
+.mic[aria-pressed="true"]::after {
+  content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--live);
+  animation: ring 1.5s ease-out infinite;
 }
-.mic[aria-pressed="true"]::after { animation-delay: .8s; }
-@keyframes ring { from { transform: scale(.9); opacity: .7; } to { transform: scale(1.35); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after { animation: none; } }
-.status { font-weight: 700; font-size: 16px; display: flex; gap: 8px; align-items: center; justify-content: center; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
-.listening .dot { background: var(--marigold); }
-.timer { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 500; }
-.hint { color: var(--muted); font-size: 13px; }
+@keyframes ring { from { transform: scale(.92); opacity: .8; } to { transform: scale(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mic[aria-pressed="true"]::after { animation: none; } }
+.statebox { min-width: 0; display: grid; gap: 2px; }
+.status { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); flex: none; }
+.listening .dot { background: var(--live); }
+.hint { color: var(--muted); font-size: 12.5px; }
+.timer { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 400; font-size: 13px; margin-left: auto; }
 
 .hearing {
-  margin-top: 12px; min-height: 3.2em; padding: 8px 10px; border-radius: 10px; background: var(--cloth);
-  color: var(--muted); font-style: italic; font-size: 17px; overflow-wrap: anywhere; font-family: "Noto Sans Gurmukhi", var(--font-ui);
+  margin: 0 14px 14px; min-height: 44px; padding: 8px 10px; border-radius: var(--radius); background: var(--soft);
+  font-family: var(--script); font-size: 17px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere;
 }
-.hearing:empty::before { content: attr(data-empty); font-style: normal; font-size: 13px; opacity: .8; }
+.hearing:empty::before { content: attr(data-empty); font-family: var(--ui); font-size: 12.5px; }
 
-.settings { display: grid; gap: 12px; margin-top: 14px; }
+.banner {
+  margin: 0 14px 14px; padding: 9px 11px; border-radius: var(--radius); background: var(--warn-bg); color: var(--warn-ink); font-size: 12.5px;
+}
+.banner .acts { margin-top: 7px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* mode switch */
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--soft); border-radius: var(--radius); padding: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 5px; padding: 6px 4px; font-size: 13px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+/* draft area */
+#draft {
+  width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--panel); padding: 9px 10px; font-family: var(--script); font-size: 18px; line-height: 1.7;
+}
+#draft:focus { outline: none; border-color: var(--accent); }
+
+/* buttons */
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.btn {
+  border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 6px 11px;
+  font-size: 13px; display: inline-flex; align-items: center; gap: 5px; min-height: 32px;
+}
+.btn:hover:not(:disabled) { background: var(--soft); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.06); background: var(--accent); }
+.btn svg { width: 15px; height: 15px; }
+.marks .btn { min-width: 38px; justify-content: center; font-family: var(--script); font-size: 16px; padding: 4px 8px; }
+.grow { flex: 1; }
+.tally { color: var(--muted); font-size: 12px; }
+.label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+
+/* disclosure sections */
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; font-weight: 600; font-size: 13px; list-style: none; display: flex; align-items: center; gap: 6px; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "›"; display: inline-block; width: 10px; color: var(--muted); transition: transform .15s; }
+details[open] summary::before { transform: rotate(90deg); }
+.fields { display: grid; gap: 10px; margin-top: 10px; }
 .field { display: grid; gap: 3px; }
-.field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.field select { border: 1px solid var(--line); background: var(--sheet); border-radius: 9px; padding: 7px 9px; width: 100%; }
-.toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.toggle input { accent-color: var(--thread); width: 16px; height: 16px; }
-
-.banner { padding: 10px 12px; border-radius: 10px; background: var(--warn-bg); color: var(--warn-ink); font-size: 13px; margin-bottom: 12px; }
-.banner button { margin-top: 8px; border: 0; border-radius: 8px; padding: 6px 10px; background: var(--ink); color: var(--sheet); cursor: pointer; font-weight: 600; }
-
-details { margin-top: 16px; }
-summary { cursor: pointer; font-weight: 700; }
+.field label { font-size: 12px; color: var(--muted); }
+.field select { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 5px 8px; width: 100%; }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
 table.cmds { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
 table.cmds td { padding: 4px 0; border-bottom: 1px solid var(--line); }
-table.cmds td:last-child { text-align: right; font-weight: 700; padding-left: 8px; }
-.foot { color: var(--muted); font-size: 12px; margin-top: 14px; }
-kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; background: var(--sheet); }
+table.cmds td:first-child { font-family: var(--script); }
+table.cmds td:last-child { text-align: right; font-weight: 600; padding-left: 8px; white-space: nowrap; }
+.tips { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 12.5px; display: grid; gap: 3px; }
+kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; background: var(--panel); }
+
+/* spelling check */
+.checkcard { padding: 12px 14px; display: grid; gap: 10px; }
+.checkhead { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.checkhead .btn { flex: none; white-space: nowrap; }
+.note { margin: 0; font-size: 12.5px; color: var(--muted); }
+.unknowns { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; max-height: 360px; overflow: auto; }
+.unknowns li { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; padding: 6px 8px; border-radius: var(--radius); background: var(--soft); }
+.unknowns .w {
+  border: 0; background: transparent; padding: 0; margin-right: 2px; font-family: var(--script); font-size: 17px; font-weight: 600;
+  text-decoration: underline wavy var(--accent); text-underline-offset: 5px;
+}
+.unknowns .n { color: var(--muted); font-size: 11.5px; margin-right: auto; font-variant-numeric: tabular-nums; }
+.unknowns .break { flex-basis: 100%; height: 0; }
+.chip { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 2px 9px; font-family: var(--script); font-size: 15px; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.small { font-family: var(--ui); font-size: 12px; }
+.chip.skip { color: var(--muted); }
+.pill { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 999px; background: var(--soft); font-size: 11px; font-weight: 400; text-align: center; color: var(--muted); }
+#myWordsText { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; background: var(--panel); font-family: var(--script); font-size: 16px; line-height: 1.6; resize: vertical; }
+
+.toast {
+  position: fixed; left: 12px; right: 12px; bottom: 12px; background: var(--ink); color: var(--bg);
+  padding: 8px 12px; border-radius: var(--radius); font-size: 13px; display: flex; align-items: center; gap: 10px;
+  opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s, transform .18s;
+}
+.toast.show { opacity: 1; transform: none; pointer-events: auto; }
+.toast button { margin-left: auto; border: 0; background: transparent; color: var(--live); font-weight: 600; }
 </style>
 </head>
 <body>
-  <div class="brand"><span class="g" lang="pa">ਬੋਲੋ</span><span class="l">Bolo Punjabi</span></div>
+<div class="stack">
 
-  <div class="banner" id="banner" role="alert" hidden><span id="bannerText"></span><br /><button type="button" id="webBtn" hidden>Open Bolo in your browser</button></div>
+  <div class="top">
+    <span class="mark" lang="pa" title="Bolo Punjabi">ਬੋਲੋ</span>
+    <div class="langs" role="group" aria-label="Language" id="langs">
+      <button type="button" data-lang="pa" lang="pa" title="Punjabi (Gurmukhi)">ਪੰ</button>
+      <button type="button" data-lang="hi" lang="hi" title="Hindi">हि</button>
+      <button type="button" data-lang="ur" lang="ur" title="Urdu">اُر</button>
+      <button type="button" data-lang="en" title="English">En</button>
+    </div>
+  </div>
 
-  <div class="card">
-    <div class="stage" id="state">
+  <section class="card" id="state" aria-label="Dictation">
+    <div class="microw">
       <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start speaking" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        <svg class="stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor"/></svg>
       </button>
-      <div class="status" aria-live="polite"><span class="dot"></span><span id="status">Loading…</span><span class="timer" id="timer">00:00</span></div>
-      <div class="hint" id="hint">Click in your document where the text should go, then press the mic.</div>
+      <div class="statebox">
+        <div class="status" aria-live="polite"><span class="dot"></span><span id="status">Loading…</span><span class="timer" id="timer"></span></div>
+        <div class="hint" id="hint">Click in your document, then press the mic.</div>
+      </div>
     </div>
-    <div class="hearing" id="hearing" data-empty="Words you're saying show here first, then go into your document." aria-live="off"></div>
+    <div class="banner" id="banner" role="alert" hidden>
+      <div id="bannerText"></div>
+      <div class="acts"><button class="btn" type="button" id="retryBtn">Try again</button><button class="btn" type="button" id="webBtn">Open Bolo in browser</button></div>
+    </div>
+    <div class="hearing" id="hearing" data-empty="What you're saying shows here first." aria-live="off"></div>
+  </section>
+
+  <div class="seg" role="group" aria-label="Where text goes">
+    <button type="button" id="modeLive" aria-pressed="true">Type into document</button>
+    <button type="button" id="modeDraft" aria-pressed="false">Draft here first</button>
   </div>
 
-  <div class="settings">
-    <div class="field">
-      <label for="lang">Language</label>
-      <select id="lang">
-        <option value="pa">ਪੰਜਾਬੀ · Punjabi (Gurmukhi)</option>
-        <option value="hi">हिन्दी · Hindi</option>
-        <option value="ur">اردو · Urdu</option>
-        <option value="en-IN">English (India)</option>
-        <option value="en-US">English (US)</option>
-      </select>
+  <!-- live mode -->
+  <div id="liveTools" class="stack">
+    <div>
+      <p class="label">Add at cursor</p>
+      <div class="row marks" id="marks"></div>
     </div>
-    <div class="field">
-      <label for="font">Font for new text</label>
-      <select id="font"></select>
+    <div class="row">
+      <button class="btn" type="button" id="undoBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+        Undo last phrase
+      </button>
+      <span class="grow"></span>
+      <span class="tally" id="tally"></span>
     </div>
-    <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">੧੨੩</span></label>
-    <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
   </div>
 
-  <details>
-    <summary>Say the punctuation</summary>
-    <table class="cmds" id="cmdTable" aria-label="Spoken punctuation commands"></table>
+  <!-- draft mode -->
+  <div id="draftTools" class="stack" hidden>
+    <textarea id="draft" spellcheck="false" aria-label="Draft text"></textarea>
+    <div class="row marks" id="draftMarks"></div>
+    <div class="row">
+      <button class="btn primary" type="button" id="insertBtn">Insert into document</button>
+      <button class="btn" type="button" id="clearBtn">Clear</button>
+      <span class="grow"></span>
+      <span class="tally" id="draftCount"></span>
+    </div>
+  </div>
+
+  <section class="card checkcard" aria-label="Spelling check">
+    <div class="checkhead">
+      <div class="statebox">
+        <b>Check spelling</b>
+        <span class="tally" id="vocabStat">Loading Mahan Kosh words…</span>
+      </div>
+      <button class="btn" type="button" id="checkBtn" disabled>Check</button>
+    </div>
+    <div id="checkOut" hidden>
+      <p class="note" id="checkSum"></p>
+      <ul class="unknowns" id="unknownList"></ul>
+      <div class="row" id="checkActs" hidden><button class="btn" type="button" id="learnAll">They're all correct: add to my words</button></div>
+    </div>
+  </section>
+
+  <details id="settings">
+    <summary>Settings</summary>
+    <div class="fields">
+      <div class="field">
+        <label for="font">Font for new text</label>
+        <select id="font"></select>
+      </div>
+      <div class="field" id="enVariantWrap">
+        <label for="enVariant">English accent</label>
+        <select id="enVariant"><option value="en-IN">India</option><option value="en-CA">Canada</option><option value="en-US">US</option><option value="en-GB">UK</option></select>
+      </div>
+      <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">(੧੨੩)</span></label>
+      <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
+      <label class="toggle"><input type="checkbox" id="autofix" /> Fix one-letter slips automatically while I speak</label>
+    </div>
   </details>
 
-  <p class="foot">Text goes in at your cursor. Check names, numbers and English words afterwards. Shortcut while this panel has focus: <kbd>Ctrl</kbd>+<kbd>M</kbd>.</p>
+  <details id="myWordsBox">
+    <summary>My words <span class="pill" id="myCount">0</span></summary>
+    <div class="fields">
+      <p class="note">Names, places and terms you use often. They're preferred when the recogniser is unsure and never flagged by the check. Saved on this computer.</p>
+      <textarea id="myWordsText" rows="5" spellcheck="false" lang="pa" placeholder="ਹਰਪ੍ਰੀਤ&#10;ਟੋਰਾਂਟੋ&#10;ਬਰੈਂਪਟਨ" aria-label="My words, one per line"></textarea>
+      <div class="row">
+        <button class="btn primary" type="button" id="saveWords">Save</button>
+        <button class="btn" type="button" id="learnBtn">Add new words from document</button>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Words that make punctuation</summary>
+    <table class="cmds" id="cmdTable"></table>
+    <ul class="tips">
+      <li>Pause briefly between sentences.</li>
+      <li>A headset mic gives the best results.</li>
+      <li>Check names, numbers and English words afterwards.</li>
+      <li><kbd>Ctrl</kbd>+<kbd>M</kbd> starts or stops while this panel is focused.</li>
+    </ul>
+  </details>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastBtn" hidden></button></div>
 
 <script>
 (() => {
+  // ================= languages =================
   const LANGS = {
     pa: {
-      codes: ['pa-Guru-IN', 'pa-IN'], dir: 'ltr', status: 'Listening in Punjabi…',
-      fonts: ['Raavi', 'Nirmala UI', 'Noto Sans Gurmukhi', 'Noto Serif Gurmukhi', 'Mukta Mahee', 'Anek Gurmukhi', 'Baloo Paaji 2', 'AnmolUni'],
+      codes: ['pa-Guru-IN', 'pa-IN'], dir: 'ltr', name: 'Punjabi', html: 'pa',
+      fonts: ['Raavi', 'Nirmala UI', 'Noto Sans Gurmukhi', 'AnmolUni'],
+      marks: ['।', ',', '?', '!'],
       cmds: [
         [['ਡੰਡੀ', 'ਪੂਰਨ ਵਿਰਾਮ', 'ਫੁੱਲ ਸਟਾਪ'], '।'],
         [['ਕੌਮਾ', 'ਕਾਮਾ', 'ਵਿਸ਼ਰਾਮ ਚਿੰਨ੍ਹ'], ','],
         [['ਪ੍ਰਸ਼ਨ ਚਿੰਨ੍ਹ', 'ਸਵਾਲੀਆ ਨਿਸ਼ਾਨ', 'ਪ੍ਰਸ਼ਨਵਾਚਕ ਚਿੰਨ੍ਹ'], '?'],
         [['ਵਿਸਮਿਕ ਚਿੰਨ੍ਹ', 'ਵਿਸਮਿਕ'], '!'],
-        [['ਨਵਾਂ ਪੈਰਾ', 'ਨਵਾਂ ਪੈਰਾਗ੍ਰਾਫ'], '\n\n'],
-        [['ਨਵੀਂ ਲਾਈਨ', 'ਨਵੀਂ ਸਤਰ', 'ਅਗਲੀ ਲਾਈਨ'], '\n']
+        [['ਨਵਾਂ ਪੈਰਾ', 'ਨਵਾਂ ਪੈਰਾਗ੍ਰਾਫ', 'ਨਵੀਂ ਲਾਈਨ', 'ਨਵੀਂ ਸਤਰ', 'ਅਗਲੀ ਲਾਈਨ'], '\n']
       ]
     },
     hi: {
-      codes: ['hi-IN'], dir: 'ltr', status: 'Listening in Hindi…',
-      fonts: ['Nirmala UI', 'Mangal', 'Noto Sans Devanagari', 'Hind', 'Tiro Devanagari Hindi'],
+      codes: ['hi-IN'], dir: 'ltr', name: 'Hindi', html: 'hi',
+      fonts: ['Nirmala UI', 'Mangal', 'Noto Sans Devanagari'],
+      marks: ['।', ',', '?', '!'],
       cmds: [
         [['पूर्ण विराम', 'फुल स्टॉप'], '।'], [['अल्पविराम', 'कॉमा'], ','],
         [['प्रश्नवाचक चिह्न', 'प्रश्न चिह्न', 'प्रश्न चिन्ह'], '?'], [['विस्मयादिबोधक चिह्न'], '!'],
-        [['नया पैराग्राफ', 'नया अनुच्छेद'], '\n\n'], [['नई लाइन', 'अगली लाइन'], '\n']
+        [['नया पैराग्राफ', 'नया अनुच्छेद', 'नई लाइन', 'अगली लाइन'], '\n']
       ]
     },
     ur: {
-      codes: ['ur-PK', 'ur-IN'], dir: 'rtl', status: 'Listening in Urdu…',
-      fonts: ['Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Noto Nastaliq Urdu', 'Gulzar', 'Noto Naskh Arabic', 'Arial'],
+      codes: ['ur-PK', 'ur-IN'], dir: 'rtl', name: 'Urdu', html: 'ur',
+      fonts: ['Urdu Typesetting', 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Arial'],
+      marks: ['۔', '،', '؟', '!'],
       cmds: [
         [['فل اسٹاپ', 'ختمہ'], '۔'], [['کاما', 'سکتہ'], '،'], [['سوالیہ نشان'], '؟'],
-        [['نیا پیراگراف'], '\n\n'], [['نئی لائن', 'اگلی لائن'], '\n']
+        [['نیا پیراگراف', 'نئی لائن', 'اگلی لائن'], '\n']
       ]
     },
-    'en-IN': {
-      codes: ['en-IN'], dir: 'ltr', status: 'Listening in English…',
-      fonts: ['(keep document font)', 'Calibri', 'Aptos', 'Times New Roman', 'Arial', 'Georgia'],
+    en: {
+      codes: ['en-IN'], dir: 'ltr', name: 'English', html: 'en',
+      fonts: [],
+      marks: ['.', ',', '?', '!'],
       cmds: [
         [['full stop', 'period'], '.'], [['comma'], ','], [['question mark'], '?'], [['exclamation mark'], '!'],
-        [['new paragraph'], '\n\n'], [['new line', 'next line'], '\n']
+        [['new paragraph', 'new line', 'next line'], '\n']
       ]
     }
   };
-  LANGS['en-US'] = { ...LANGS['en-IN'], codes: ['en-US'] };
-  const KEEP = '(keep document font)';
+  const KEEP = 'Same as document';
+  const PUNCT_START = /^[\n।,?!.۔،؟]/;
 
+  // ================= elements & saved settings =================
   const $ = (id) => document.getElementById(id);
-  const mic = $('mic'), hearing = $('hearing'), langSel = $('lang'), fontSel = $('font');
-  const numerals = $('numerals'), spoken = $('spoken');
+  const mic = $('mic'), hearing = $('hearing'), draft = $('draft'), fontSel = $('font');
+  const numerals = $('numerals'), spoken = $('spoken'), enVariant = $('enVariant');
 
   const store = {
-    get(k, d) { try { const v = localStorage.getItem('bolo.word.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
-    set(k, v) { try { localStorage.setItem('bolo.word.' + k, JSON.stringify(v)); } catch {} }
+    get(k, d) { try { const v = localStorage.getItem('bolo.word2.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('bolo.word2.' + k, JSON.stringify(v)); } catch {} }
   };
 
-  let lang = store.get('lang', 'pa');
-  if (!LANGS[lang]) lang = 'pa';
-  langSel.value = lang;
+  let lang = store.get('lang', 'pa'); if (!LANGS[lang]) lang = 'pa';
+  let mode = store.get('mode', 'live');
   numerals.checked = store.get('numerals', false);
   spoken.checked = store.get('spoken', true);
+  enVariant.value = store.get('enVariant', 'en-IN');
+  draft.value = store.get('draft', '');
   const L = () => LANGS[lang];
+  const codes = () => (lang === 'en' ? [enVariant.value] : L().codes);
 
-  function fillFonts() {
-    const fonts = [...new Set([KEEP, ...L().fonts])];
-    const saved = store.get('font.' + lang, L().fonts[0]);
-    fontSel.innerHTML = '';
-    for (const f of fonts) {
-      const o = document.createElement('option'); o.value = f; o.textContent = f; fontSel.appendChild(o);
-    }
-    fontSel.value = fonts.includes(saved) ? saved : L().fonts[0];
-  }
-  function applyLook() {
-    hearing.dir = L().dir;
-    hearing.lang = { pa: 'pa', hi: 'hi', ur: 'ur' }[lang] || 'en';
+  // ================= rendering =================
+  function renderLang() {
+    document.querySelectorAll('#langs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    hearing.dir = draft.dir = L().dir;
+    hearing.lang = draft.lang = L().html;
     $('numeralsWrap').hidden = lang !== 'pa';
+    $('enVariantWrap').hidden = lang !== 'en';
+    draft.placeholder = { pa: 'ਇੱਥੇ ਬੋਲੋ, ਸੋਧੋ, ਫਿਰ ਦਸਤਾਵੇਜ਼ ਵਿੱਚ ਪਾਓ…', hi: 'यहाँ बोलें, सुधारें, फिर दस्तावेज़ में डालें…', ur: 'یہاں بولیں، درست کریں، پھر دستاویز میں ڈالیں…', en: 'Speak here, fix it up, then insert it…' }[lang];
+
+    // fonts
+    const fonts = [KEEP, ...L().fonts];
+    const saved = store.get('font.' + lang, L().fonts[0] || KEEP);
+    fontSel.innerHTML = '';
+    for (const f of fonts) { const o = document.createElement('option'); o.value = o.textContent = f; fontSel.appendChild(o); }
+    fontSel.value = fonts.includes(saved) ? saved : fonts[0];
+
+    // punctuation buttons
+    for (const id of ['marks', 'draftMarks']) {
+      const box = $(id); box.innerHTML = '';
+      for (const m of [...L().marks, '\n']) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'btn';
+        b.textContent = m === '\n' ? '↵' : m;
+        b.title = m === '\n' ? 'New paragraph' : 'Add ' + m;
+        b.setAttribute('aria-label', b.title);
+        b.addEventListener('click', () => (id === 'marks' ? insertIntoWord(m, { mark: true }) : addToDraft(m)));
+        box.appendChild(b);
+      }
+    }
+
+    // command table
     const t = $('cmdTable'); t.innerHTML = '';
     for (const [words, mark] of L().cmds) {
       const tr = document.createElement('tr');
-      const a = document.createElement('td'); a.textContent = words[0]; a.lang = hearing.lang; a.dir = L().dir;
-      const b = document.createElement('td'); b.textContent = mark === '\n' ? '↵ new line' : mark === '\n\n' ? '¶ new paragraph' : mark;
+      const a = document.createElement('td'); a.textContent = words.slice(0, 2).join(' · '); a.lang = L().html; a.dir = L().dir;
+      const b = document.createElement('td'); b.textContent = mark === '\n' ? '↵ new paragraph' : mark;
       tr.append(a, b); t.appendChild(tr);
     }
   }
 
-  // ---------- text clean-up (same rules as the web page) ----------
-  const GUR_DIGITS = '੦੧੨੩੪੫੬੭੮੯';
-  const PUNCT = /^[\n।,?!.۔،؟]/;
+  function renderMode() {
+    $('modeLive').setAttribute('aria-pressed', String(mode === 'live'));
+    $('modeDraft').setAttribute('aria-pressed', String(mode === 'draft'));
+    $('liveTools').hidden = mode !== 'live';
+    $('draftTools').hidden = mode !== 'draft';
+    if (!wanted) setStatus('Ready', idleHint());
+    draftCount();
+    updateVocabStat();
+    $('checkOut').hidden = true;
+  }
+  const idleHint = () => (mode === 'live' ? 'Click in your document, then press the mic.' : 'Press the mic. Text collects below for you to check.');
+
+  // ================= text clean-up =================
+  const GUR = '੦੧੨੩੪੫੬੭੮੯';
   const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  function processChunk(text) {
+  function clean(text) {
     let s = text.trim();
     if (!s) return '';
     if (spoken.checked) {
       for (const [words, mark] of L().cmds)
         for (const w of words)
-          s = s.replace(new RegExp('\\s*' + esc(w) + '(?=\\s|$)', lang.startsWith('en') ? 'gi' : 'g'), mark);
-      s = s.replace(/[ \t]+([।,?!.۔،؟])/g, '$1').replace(/[ \t]*\n[ \t]*/g, '\n');
+          s = s.replace(new RegExp('\\s*' + esc(w) + '(?=\\s|$)', lang === 'en' ? 'gi' : 'g'), mark);
+      s = s.replace(/[ \t]+([।,?!.۔،؟])/g, '$1').replace(/[ \t]*\n[ \t]*/g, '\n').replace(/\n{2,}/g, '\n');
     }
-    if (lang === 'pa' && numerals.checked) s = s.replace(/[0-9]/g, (d) => GUR_DIGITS[+d]);
+    if (lang === 'pa' && numerals.checked) s = s.replace(/[0-9]/g, (d) => GUR[+d]);
     return s;
   }
+  const wordsIn = (s) => (s.trim() ? s.trim().split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length : 0);
 
-  // ---------- writing into Word ----------
+  // join a new piece onto whatever comes before it
+  function joinPiece(before, chunk) {
+    let piece = chunk;
+    const atStart = before == null ? false : before.trim() === '';
+    if (!atStart && !PUNCT_START.test(piece) && !(before && /\s$/.test(before))) piece = ' ' + piece;
+    if (lang === 'en' && (atStart || /[.?!]\s*$/.test(before || '')))
+      piece = piece.replace(/^(\s*)(\p{Ll})/u, (m, sp, c) => sp + c.toUpperCase());
+    return piece;
+  }
+
+  // ================= writing into Word =================
   let chain = Promise.resolve();
-  function insertIntoWord(chunk) {
+  let undoStack = [];
+  let added = 0;
+
+  function insertIntoWord(chunk, opts = {}) {
     if (!chunk) return;
-    const font = fontSel.value, rtl = L().dir === 'rtl', english = lang.startsWith('en');
+    const font = fontSel.value, rtl = L().dir === 'rtl';
     chain = chain.then(() => Word.run(async (ctx) => {
       const sel = ctx.document.getSelection();
-      // Look at the text just before the cursor so spacing and capitals come out right.
       let before = null;
       try {
-        const para = sel.paragraphs.getFirst();
-        const pre = para.getRange('Start').expandTo(sel.getRange('Start'));
+        const pre = sel.paragraphs.getFirst().getRange('Start').expandTo(sel.getRange('Start'));
         pre.load('text');
         await ctx.sync();
         before = pre.text;
       } catch { before = null; }
 
-      let piece = chunk;
-      const atLineStart = before !== null && before.trim() === '';
-      if (!atLineStart && !PUNCT.test(piece) && !(before && /\s$/.test(before))) piece = ' ' + piece;
-      if (english && (atLineStart || (before && /[.?!]\s*$/.test(before))))
-        piece = piece.replace(/^(\s*)(\p{Ll})/u, (m, sp, c) => sp + c.toUpperCase());
-      // Word treats a line break as a new paragraph; a blank one gives the paragraph gap.
-      piece = piece.replace(/\n\n/g, '\n');
-
+      const piece = opts.mark ? chunk : joinPiece(before, chunk);
       const r = sel.insertText(piece, 'Replace');
       if (font !== KEEP) r.font.name = font;
-      if (rtl) { try { r.paragraphs.load('items'); await ctx.sync(); r.paragraphs.items.forEach((p) => { p.alignment = 'Right'; }); } catch {} }
+      if (rtl) { r.paragraphs.load('items'); }
+      try { r.track(); } catch {}
       r.select('End');
       await ctx.sync();
+      if (rtl) { r.paragraphs.items.forEach((p) => { p.alignment = 'Right'; }); await ctx.sync(); }
+
+      if (!opts.mark && !opts.fromDraft) {
+        undoStack.push({ range: r, words: wordsIn(piece) });
+        if (undoStack.length > 30) undoStack.shift();
+        added += wordsIn(piece);
+      } else if (opts.fromDraft) {
+        undoStack.push({ range: r, words: wordsIn(piece) });
+        added += wordsIn(piece);
+      }
+      refreshLive();
     })).catch((err) => {
-      showBanner('Couldn’t write into the document: ' + (err && err.message ? err.message : err) + '. Click inside the document and try again.');
+      showBanner('Couldn’t write into the document (' + ((err && err.message) || err) + '). Click inside the document and try again.', false);
     });
+    return chain;
   }
 
-  // ---------- speech recognition ----------
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, wanted = false, codeIdx = 0, tick = null, started = 0;
-  const WEB_URL = new URL('index.html', location.href).href;
+  function undoLast() {
+    const last = undoStack.pop();
+    if (!last) return;
+    chain = chain.then(() => Word.run(last.range, async (ctx) => {
+      last.range.insertText('', 'Replace');
+      try { last.range.untrack(); } catch {}
+      await ctx.sync();
+      added = Math.max(0, added - last.words);
+      refreshLive();
+    })).catch(() => toast('That text was already changed, so it can’t be undone from here. Use Word’s Undo (Ctrl+Z).'));
+  }
 
-  function showBanner(msg, offerWeb) {
-    $('bannerText').textContent = msg;
+  function refreshLive() {
+    $('undoBtn').disabled = !undoStack.length;
+    $('tally').textContent = added ? `${added} word${added === 1 ? '' : 's'} added` : '';
+  }
+
+  // ================= draft mode =================
+  function addToDraft(chunk, asMark) {
+    if (!chunk) return;
+    const start = draft.selectionStart ?? draft.value.length, end = draft.selectionEnd ?? draft.value.length;
+    const before = draft.value.slice(0, start), after = draft.value.slice(end);
+    let piece = PUNCT_START.test(chunk) || chunk === '\n' ? chunk : joinPiece(before, chunk);
+    if (after && !/^[\s\n।,?!.۔،؟]/.test(after) && !/\n$/.test(piece)) piece += ' ';
+    draft.value = before + piece + after;
+    const pos = before.length + piece.length;
+    draft.setSelectionRange(pos, pos);
+    onDraft();
+  }
+  function draftCount() { const n = wordsIn(draft.value); $('draftCount').textContent = n ? `${n} word${n === 1 ? '' : 's'}` : ''; }
+  let saveT;
+  function onDraft() { draftCount(); clearTimeout(saveT); saveT = setTimeout(() => store.set('draft', draft.value), 300); }
+  draft.addEventListener('input', onDraft);
+
+  $('insertBtn').addEventListener('click', async () => {
+    const text = draft.value.trim();
+    if (!text) return toast('Nothing to insert yet.');
+    await insertIntoWord(text.replace(/\n{2,}/g, '\n'), { fromDraft: true });
+    const kept = draft.value;
+    draft.value = ''; onDraft();
+    toast('Inserted into your document.', 'Bring back', () => { draft.value = kept; onDraft(); });
+  });
+  $('clearBtn').addEventListener('click', () => {
+    if (!draft.value) return;
+    const kept = draft.value; draft.value = ''; onDraft();
+    toast('Draft cleared.', 'Undo', () => { draft.value = kept; onDraft(); });
+  });
+
+  // ================= microphone permission =================
+  async function ensureMic() {
+    const dp = window.Office && Office.context && Office.context.devicePermission;
+    if (dp && dp.requestPermissionsAsync && Office.DevicePermissionType) {
+      try {
+        const ok = await dp.requestPermissionsAsync([Office.DevicePermissionType.microphone]);
+        if (ok === false) return 'denied';
+      } catch (e) {
+        if (/den|declin|not allowed/i.test((e && e.message) || '')) return 'denied';
+      }
+    }
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+        s.getTracks().forEach((t) => t.stop());
+      } catch (e) {
+        return e && e.name === 'NotFoundError' ? 'nomic' : 'blocked';
+      }
+    }
+    return 'ok';
+  }
+  const HELP = {
+    denied: 'The microphone wasn’t allowed. Press Try again and choose “Allow” in the box that appears.',
+    nomic: 'No microphone was found. Plug one in or check your sound settings, then try again.',
+    blocked: 'The microphone is blocked for this panel. In Word in the browser: click the icon at the left of the address bar → Site settings → Microphone → Allow, then reload the page. The Word app installed on a computer often doesn’t let add-ins use the microphone — use Word in the browser, or open Bolo in the browser and paste.',
+    unsupported: 'This copy of Word can’t do speech recognition inside add-ins. Open your document in Word in the browser (office.com, Chrome or Edge), or open Bolo in the browser and paste.',
+    network: 'The speech service couldn’t be reached. Check your internet connection and try again.',
+    lang: 'Speech recognition doesn’t support this language here. Try Word in the browser with the latest Chrome.'
+  };
+
+  // ================= speech recognition =================
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, wanted = false, codeIdx = 0, tick = null, t0 = 0, noPhrases = false;
+  const fmt = (ms) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
+  function showBanner(msg, offerWeb = true) {
+    $('bannerText').textContent = msg || '';
     $('webBtn').hidden = !offerWeb;
     $('banner').hidden = !msg;
   }
-  function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
-  const fmt = (ms) => { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
-
-  const NOT_HERE = 'Speech recognition isn’t available inside this version of Word. It works in Word for the web (open your document at office.com in Chrome or Edge). You can also speak in the Bolo web page and paste the text in.';
 
   function makeRec() {
     const r = new SR();
-    r.lang = L().codes[codeIdx] || L().codes[0];
-    r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+    const c = codes();
+    r.lang = c[codeIdx] || c[0];
+    r.continuous = true; r.interimResults = true; r.maxAlternatives = 5;
+    // Where the browser supports it, ask it to listen out for your own words.
+    if (window.SpeechRecognitionPhrase && 'phrases' in r && !noPhrases) {
+      try {
+        const mine = myWords(lang).slice(0, 300);
+        if (mine.length) r.phrases = mine.map((w) => new SpeechRecognitionPhrase(w, 3));
+      } catch {}
+    }
     r.onstart = () => {
       $('state').classList.add('listening');
       mic.setAttribute('aria-pressed', 'true'); mic.setAttribute('aria-label', 'Stop');
-      setStatus(L().status, 'Speak now. Press the mic again to stop.');
+      setStatus('Listening · ' + L().name, mode === 'live' ? 'Words go in at your cursor. Press the square to stop.' : 'Words collect below. Press the square to stop.');
       showBanner('');
     };
     r.onresult = (e) => {
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
-        if (res.isFinal) insertIntoWord(processChunk(res[0].transcript));
-        else interim += res[0].transcript;
+        if (res.isFinal) {
+          const text = autoFix(clean(bestAlternative(res)));
+          if (mode === 'live') insertIntoWord(text); else addToDraft(text);
+        } else interim += res[0].transcript;
       }
       hearing.textContent = interim;
     };
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;
-      if (e.error === 'language-not-supported' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
+      if (e.error === 'phrases-not-supported') { noPhrases = true; return; }
+      if (e.error === 'language-not-supported' && codeIdx < codes().length - 1) { codeIdx++; return; }
       wanted = false;
-      const msgs = {
-        'not-allowed': 'Word didn’t let this panel use the microphone. In Word for the web, allow the microphone when the browser asks (or via the lock icon in the address bar), then press the mic again. ' ,
-        'service-not-allowed': NOT_HERE,
-        network: 'The speech service couldn’t be reached. Check your internet connection. If you’re in desktop Word, this can also mean speech recognition isn’t supported here: try Word for the web.',
-        'audio-capture': 'No microphone was found. Plug one in or check your sound settings, then try again.',
-        'language-not-supported': 'This language isn’t supported for speech recognition here. Try Word for the web in the latest Chrome.'
-      };
-      showBanner(msgs[e.error] || 'Speech recognition stopped (' + e.error + '). Press the mic to try again.', e.error !== 'audio-capture');
+      const key = { 'not-allowed': 'blocked', 'service-not-allowed': 'unsupported', network: 'network', 'audio-capture': 'nomic', 'language-not-supported': 'lang' }[e.error];
+      showBanner(key ? HELP[key] : 'Listening stopped (' + e.error + '). Press Try again.', key !== 'nomic' && key !== 'network');
     };
     r.onend = () => {
       hearing.textContent = '';
@@ -320,61 +612,341 @@ kbd { font: 11px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     };
     return r;
   }
+
   function stopUi() {
     wanted = false;
     $('state').classList.remove('listening');
     mic.setAttribute('aria-pressed', 'false'); mic.setAttribute('aria-label', 'Start speaking');
-    clearInterval(tick);
-    setStatus('Ready to listen', 'Click in your document where the text should go, then press the mic.');
+    clearInterval(tick); $('timer').textContent = '';
+    setStatus('Ready', idleHint());
   }
+
   async function start() {
     if (!SR || wanted) return;
     wanted = true; codeIdx = 0;
-    // Word for the web can ask the user to allow the microphone for add-ins.
-    try {
-      const dp = Office.context.devicePermission;
-      if (dp && dp.requestPermissionsAsync) await dp.requestPermissionsAsync([Office.DevicePermissionType.microphone]);
-    } catch {}
+    showBanner('');
+    setStatus('Asking for the microphone…', 'If a box appears, choose Allow.');
+    const m = await ensureMic();
+    if (!wanted) return;
+    if (m !== 'ok') { stopUi(); showBanner(HELP[m], m !== 'nomic'); return; }
     try {
       rec = makeRec(); rec.start();
-      started = Date.now(); clearInterval(tick);
-      tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - started)), 250);
-    } catch { wanted = false; showBanner('Couldn’t start the microphone. Close and reopen the panel, then try again.', true); }
+      t0 = Date.now(); clearInterval(tick);
+      tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500);
+    } catch { stopUi(); showBanner('Couldn’t start listening. Close and reopen the panel, then try again.'); }
   }
   function stop() { wanted = false; try { rec && rec.stop(); } catch {} stopUi(); }
+  const toggle = () => (wanted ? stop() : start());
 
-  mic.addEventListener('click', () => (wanted ? stop() : start()));
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'm') { e.preventDefault(); wanted ? stop() : start(); }
-  });
-  $('webBtn').addEventListener('click', () => {
-    try { Office.context.ui.openBrowserWindow(WEB_URL); } catch { window.open(WEB_URL, '_blank'); }
-  });
+  // ================= vocabulary (Mahan Kosh + my words) =================
+  // Headwords and frequent words from Bhai Kahan Singh Nabha's Mahan Kosh, most common first
+  // (mahan-kosh-words.js, loaded after the panel opens so it starts quickly).
+  let PA_WORDS = [], rank = new Map(), byLen = new Map();
+  const WORD_RE = /[ਁ-ੵ]+|[\p{L}\p{M}]+/gu;
+  const isGur = (w) => /^[ਁ-ੵ]+$/.test(w);
 
-  langSel.addEventListener('change', () => {
+  function loadVocab() {
+    if (loadVocab.p) return loadVocab.p;
+    loadVocab.p = new Promise((done) => {
+      const s = document.createElement('script');
+      s.src = 'mahan-kosh-words.js';
+      s.onload = () => {
+        PA_WORDS = (window.BOLO_VOCAB_PA || '').split(' ').filter(Boolean);
+        rank = new Map(PA_WORDS.map((w, i) => [w, i]));
+        byLen = new Map();
+        PA_WORDS.forEach((w) => { const n = [...w].length; if (!byLen.has(n)) byLen.set(n, []); byLen.get(n).push(w); });
+        delete window.BOLO_VOCAB_PA;
+        updateVocabStat(); done(true);
+      };
+      s.onerror = () => { updateVocabStat(true); done(false); };
+      document.head.appendChild(s);
+    });
+    return loadVocab.p;
+  }
+
+  const myWords = (l = lang) => store.get('myWords.' + l, []);
+  function setMyWords(list, l = lang) {
+    const tidy = [...new Set(list.map((w) => w.trim()).filter(Boolean))];
+    store.set('myWords.' + l, tidy);
+    updateVocabStat();
+    return tidy;
+  }
+  const mySet = () => new Set(myWords());
+  const known = (w, mine = mySet()) => mine.has(w) || (lang === 'pa' && rank.has(w)) || /^[\d੦-੯]+$/.test(w);
+  const hasVocab = () => (lang === 'pa' && PA_WORDS.length > 0) || myWords().length > 0;
+
+  // Of the recogniser's guesses, keep the one whose words we know best.
+  function bestAlternative(res) {
+    if (res.length < 2 || !hasVocab()) return res[0].transcript;
+    const mine = mySet();
+    let best = res[0].transcript, bestScore = -1;
+    for (let i = 0; i < res.length; i++) {
+      const words = res[i].transcript.match(WORD_RE) || [];
+      if (!words.length) continue;
+      let score = 0;
+      for (const w of words) score += mine.has(w) ? 1.5 : known(w, mine) ? 1 : 0;
+      score = score / words.length - i * 0.02;
+      if (score > bestScore + 1e-9) { bestScore = score; best = res[i].transcript; }
+    }
+    return best;
+  }
+
+  // Punjabi-aware edit distance: look-alike / sound-alike swaps cost half.
+  const NEAR = [['ਸ', 'ਸ਼'], ['ਜ', 'ਜ਼'], ['ਫ', 'ਫ਼'], ['ਖ', 'ਖ਼'], ['ਗ', 'ਗ਼'], ['ਲ', 'ਲ਼'], ['ਂ', 'ੰ'],
+    ['ਿ', 'ੀ'], ['ੁ', 'ੂ'], ['ੇ', 'ੈ'], ['ੋ', 'ੌ'], ['ਣ', 'ਨ'], ['ੜ', 'ਰ'], ['ਬ', 'ਵ'], ['ਇ', 'ਈ'], ['ਉ', 'ਊ'], ['ਏ', 'ਐ'], ['ਓ', 'ਔ']];
+  const unit = (w) => w.normalize('NFD').match(/.਼?/gu) || [];
+  const nearSet = new Set();
+  NEAR.forEach(([a, b]) => { const A = unit(a).join(''), B = unit(b).join(''); nearSet.add(A + '|' + B); nearSet.add(B + '|' + A); });
+  const LIGHT = new Set(['ੱ', 'ਂ', 'ੰ', '਼']);
+  function dist(a, b, max) {
+    const A = unit(a), B = unit(b);
+    if (Math.abs(A.length - B.length) > max * 2) return max + 1;
+    let prev = Array.from({ length: B.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= A.length; i++) {
+      const cur = [i];
+      let rowMin = i;
+      for (let j = 1; j <= B.length; j++) {
+        const x = A[i - 1], y = B[j - 1];
+        const sub = x === y ? 0 : nearSet.has(x + '|' + y) ? 0.5 : 1;
+        cur[j] = Math.min(prev[j] + (LIGHT.has(x) ? 0.5 : 1), cur[j - 1] + (LIGHT.has(y) ? 0.5 : 1), prev[j - 1] + sub);
+        rowMin = Math.min(rowMin, cur[j]);
+      }
+      if (rowMin > max) return max + 1;
+      prev = cur;
+    }
+    return prev[B.length];
+  }
+  function suggest(w, max = 2, limit = 3) {
+    const pool = [], mine = myWords(), n = [...w].length, W = unit(w);
+    const cands = mine.concat(lang === 'pa' ? [].concat(...[-2, -1, 0, 1, 2].map((d) => byLen.get(n + d) || [])) : []);
+    for (const c of cands) {
+      if (c === w) continue;
+      const C = unit(c);
+      if (Math.abs(C.length - W.length) > max * 2) continue;
+      let shared = 0; const left = W.slice();
+      for (const x of C) { const k = left.indexOf(x); if (k >= 0) { shared++; left[k] = null; } }
+      if (W.length - shared > max * 2 || C.length - shared > max * 2) continue;
+      const d = dist(w, c, max);
+      if (d <= max) pool.push({ w: c, d, r: mine.includes(c) ? -1 : rank.get(c) ?? 1e9 });
+    }
+    pool.sort((a, b) => a.d - b.d || a.r - b.r);
+    return [...new Map(pool.map((p) => [p.w, p])).values()].slice(0, limit);
+  }
+  // Optional: replace an unknown word when exactly one known word is a single small slip away.
+  function autoFix(text) {
+    if (!$('autofix').checked || !hasVocab()) return text;
+    const mine = mySet();
+    return text.replace(WORD_RE, (w) => {
+      if (!isGur(w) || known(w, mine) || [...w].length < 3) return w;
+      const s = suggest(w, 1, 2);
+      return s.length && s[0].d <= 1 && (s.length === 1 || s[1].d > s[0].d) ? s[0].w : w;
+    });
+  }
+
+  function updateVocabStat(failed) {
+    const n = myWords().length;
+    $('myCount').textContent = n;
+    $('vocabStat').textContent = lang === 'pa'
+      ? (PA_WORDS.length ? `${PA_WORDS.length.toLocaleString()} Mahan Kosh words + ${n} of yours`
+        : failed ? `Mahan Kosh list didn't load · ${n} of your words` : 'Loading Mahan Kosh words…')
+      : `${n} of your words for ${L().name}`;
+    $('checkBtn').disabled = !hasVocab();
+    $('checkBtn').textContent = mode === 'draft' ? 'Check draft' : 'Check document';
+  }
+
+  // ---- where the check reads from and writes to: the draft, or the Word document ----
+  let checkScope = 'document';
+  async function readCheckText() {
+    if (mode === 'draft') { checkScope = 'draft'; return draft.value; }
+    let text = '';
+    await Word.run(async (ctx) => {
+      const sel = ctx.document.getSelection(); sel.load('text');
+      const body = ctx.document.body; body.load('text');
+      await ctx.sync();
+      if (sel.text && sel.text.trim().length > 1) { checkScope = 'selection'; text = sel.text; }
+      else { checkScope = 'document'; text = body.text; }
+    });
+    return text;
+  }
+  async function replaceEverywhere(from, to) {
+    if (checkScope === 'draft') {
+      const re = new RegExp('(^|[^\\u0A01-\\u0A75\\p{L}\\p{M}])' + esc(from) + '(?=$|[^\\u0A01-\\u0A75\\p{L}\\p{M}])', 'gu');
+      let n = 0;
+      draft.value = draft.value.replace(re, (m, pre) => { n++; return pre + to; });
+      onDraft();
+      return n;
+    }
+    let n = 0;
+    await Word.run(async (ctx) => {
+      const where = checkScope === 'selection' ? ctx.document.getSelection() : ctx.document.body;
+      const found = where.search(from, { matchCase: true, matchWholeWord: true });
+      found.load('items');
+      await ctx.sync();
+      found.items.forEach((r) => r.insertText(to, 'Replace'));
+      n = found.items.length;
+      await ctx.sync();
+    });
+    return n;
+  }
+  async function showInDoc(w) {
+    if (checkScope === 'draft') {
+      const i = draft.value.indexOf(w);
+      if (i >= 0) { draft.focus(); draft.setSelectionRange(i, i + w.length); }
+      return;
+    }
+    await Word.run(async (ctx) => {
+      const found = ctx.document.body.search(w, { matchCase: true, matchWholeWord: true });
+      found.load('items'); await ctx.sync();
+      if (found.items.length) { found.items[0].select(); await ctx.sync(); }
+    });
+  }
+
+  let lastUnknown = [], ignored = new Set();
+  async function runCheck() {
+    $('checkBtn').disabled = true;
+    try {
+      await loadVocab();
+      const text = await readCheckText();
+      const mine = mySet(), seen = new Map();
+      for (const w of text.match(WORD_RE) || []) {
+        if (lang === 'pa' && !isGur(w)) continue;
+        if (!known(w, mine) && !ignored.has(w)) seen.set(w, (seen.get(w) || 0) + 1);
+      }
+      lastUnknown = [...seen];
+      renderCheck(text);
+    } catch (err) {
+      toast('Couldn’t read the document: ' + ((err && err.message) || err));
+    } finally { $('checkBtn').disabled = !hasVocab(); }
+  }
+
+  function renderCheck(text) {
+    $('checkOut').hidden = false;
+    const items = lastUnknown.filter(([w]) => !ignored.has(w));
+    const where = { draft: 'your draft', selection: 'the selected text', document: 'your document' }[checkScope];
+    $('checkSum').textContent = !(text || '').trim() ? `Nothing to check in ${where} yet.`
+      : items.length ? `${items.length} word${items.length === 1 ? '' : 's'} in ${where} not in the vocabulary. Tap a suggestion to replace it, or keep it as one of your words.`
+      : `Every word in ${where} is in the vocabulary ✓`;
+    $('checkActs').hidden = !items.length;
+    const list = $('unknownList'); list.innerHTML = '';
+    for (const [w, n] of items.slice(0, 60)) {
+      const li = document.createElement('li');
+      const ww = document.createElement('button'); ww.type = 'button'; ww.className = 'w'; ww.textContent = w; ww.lang = L().html;
+      ww.title = 'Show it in the document';
+      ww.addEventListener('click', () => showInDoc(w).catch(() => {}));
+      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = n > 1 ? '×' + n : '';
+      li.append(ww, nn);
+      const brk = document.createElement('span'); brk.className = 'break';
+      const sugg = suggest(w);
+      if (sugg.length) li.append(brk);
+      for (const s of sugg) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = s.w; b.lang = L().html;
+        b.title = `Replace “${w}” with “${s.w}”`;
+        b.addEventListener('click', async () => {
+          try {
+            const k = await replaceEverywhere(w, s.w);
+            lastUnknown = lastUnknown.filter(([x]) => x !== w); renderCheck(text);
+            toast(k ? `Replaced ${k} with ${s.w}` : `Couldn’t find “${w}” to replace. Fix it by hand.`);
+          } catch (err) { toast('Couldn’t replace: ' + ((err && err.message) || err)); }
+        });
+        li.append(b);
+      }
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'chip small'; add.textContent = '+ My words';
+      add.addEventListener('click', () => { setMyWords(myWords().concat(w)); fillMyWords(); lastUnknown = lastUnknown.filter(([x]) => x !== w); renderCheck(text); toast(`Added ${w} to your words`); });
+      const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'chip small skip'; skip.textContent = 'Ignore';
+      skip.addEventListener('click', () => { ignored.add(w); renderCheck(text); });
+      li.append(add, skip);
+      list.append(li);
+    }
+  }
+
+  function fillMyWords() { $('myWordsText').value = myWords().join('\n'); $('myWordsText').lang = L().html; $('myWordsText').dir = L().dir; }
+  $('checkBtn').addEventListener('click', runCheck);
+  $('saveWords').addEventListener('click', () => {
+    const n = setMyWords($('myWordsText').value.split(/[\n,]+/)).length;
+    fillMyWords(); toast(`Saved ${n} word${n === 1 ? '' : 's'}`);
+  });
+  $('learnAll').addEventListener('click', () => {
+    const fresh = lastUnknown.filter(([w]) => !ignored.has(w)).map(([w]) => w);
+    setMyWords(myWords().concat(fresh)); fillMyWords();
+    lastUnknown = []; renderCheck('x');
+    toast(`Added ${fresh.length} word${fresh.length === 1 ? '' : 's'} to your words`);
+  });
+  $('learnBtn').addEventListener('click', async () => {
+    try {
+      await loadVocab();
+      const text = await readCheckText(), mine = mySet();
+      const fresh = [...new Set((text.match(WORD_RE) || []).filter((w) => (lang !== 'pa' || isGur(w)) && !known(w, mine)))];
+      if (!fresh.length) return toast('No new words found');
+      setMyWords(myWords().concat(fresh)); fillMyWords();
+      toast(`Added ${fresh.length} new word${fresh.length === 1 ? '' : 's'}`);
+    } catch (err) { toast('Couldn’t read the document: ' + ((err && err.message) || err)); }
+  });
+  $('autofix').checked = store.get('autofix', false);
+  $('autofix').addEventListener('change', () => store.set('autofix', $('autofix').checked));
+
+  // ================= toast =================
+  function toast(msg, label, action) {
+    const t = $('toast'), b = $('toastBtn');
+    $('toastText').textContent = msg;
+    b.hidden = !label; b.textContent = label || '';
+    b.onclick = () => { action && action(); t.classList.remove('show'); };
+    t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), label ? 7000 : 2600);
+  }
+
+  // ================= events =================
+  mic.addEventListener('click', toggle);
+  $('retryBtn').addEventListener('click', () => { showBanner(''); start(); });
+  const WEB_URL = new URL('index.html', location.href).href;
+  $('webBtn').addEventListener('click', () => { try { Office.context.ui.openBrowserWindow(WEB_URL); } catch { window.open(WEB_URL, '_blank'); } });
+  $('undoBtn').addEventListener('click', undoLast);
+
+  document.querySelectorAll('#langs button').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.lang === lang) return;
     const was = wanted; if (was) stop();
-    lang = langSel.value; store.set('lang', lang);
-    fillFonts(); applyLook();
+    lang = b.dataset.lang; store.set('lang', lang); renderLang();
+    updateVocabStat(); fillMyWords(); $('checkOut').hidden = true; ignored = new Set();
     if (was) setTimeout(start, 300);
-  });
+  }));
+  $('modeLive').addEventListener('click', () => { mode = 'live'; store.set('mode', mode); renderMode(); });
+  $('modeDraft').addEventListener('click', () => { mode = 'draft'; store.set('mode', mode); renderMode(); });
   fontSel.addEventListener('change', () => store.set('font.' + lang, fontSel.value));
   numerals.addEventListener('change', () => store.set('numerals', numerals.checked));
   spoken.addEventListener('change', () => store.set('spoken', spoken.checked));
+  enVariant.addEventListener('change', () => { store.set('enVariant', enVariant.value); if (wanted) { stop(); setTimeout(start, 300); } });
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'm') { e.preventDefault(); toggle(); }
+  });
 
-  fillFonts(); applyLook();
+  // ================= start up =================
+  // follow Word's own light/dark theme when it tells us
+  function followWordTheme() {
+    try {
+      const bg = Office.context.officeTheme && Office.context.officeTheme.bodyBackgroundColor;
+      if (!bg) return;
+      const n = parseInt(bg.replace('#', ''), 16);
+      const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+      document.documentElement.setAttribute('data-theme', lum < 0.5 ? 'dark' : 'light');
+    } catch {}
+  }
+
+  renderLang(); renderMode(); refreshLive(); fillMyWords();
 
   Office.onReady((info) => {
+    followWordTheme();
+    loadVocab();
     if (info.host !== Office.HostType.Word) {
-      setStatus('Open this in Microsoft Word', 'This panel only works inside Word.');
+      setStatus('Open this inside Word', 'This panel works in Microsoft Word.');
       return;
     }
     if (!SR) {
-      setStatus('Speech not available here', 'Your Word app can’t do speech recognition in add-ins.');
-      showBanner(NOT_HERE, true);
+      setStatus('Speech not available here');
+      showBanner(HELP.unsupported);
+      $('retryBtn').hidden = true;
       return;
     }
     mic.disabled = false;
-    setStatus('Ready to listen');
+    setStatus('Ready', idleHint());
   });
 })();
 </script>

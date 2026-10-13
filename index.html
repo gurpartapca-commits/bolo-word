@@ -9,36 +9,43 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Mukta+Mahee:wght@400;500;700&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Serif+Gurmukhi:wght@400;600&family=Baloo+Paaji+2:wght@400;600&family=Anek+Gurmukhi:wght@400;600&family=Hind:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Tiro+Devanagari+Hindi&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Gulzar&display=swap" />
 <style>
-/* Layout: one working sheet (the transcript) under a slim control rail; the mic is the only bold object.
-   Palette from phulkari embroidery: indigo cloth, magenta and marigold thread. */
+/* A writing desk: the sheet of paper is the centrepiece, the controls sit in a column beside it.
+   Colours come from phulkari embroidery: indigo cloth, magenta and marigold thread. */
 :root {
-  --cloth: #f4f5fa;        /* page */
-  --sheet: #ffffff;        /* transcript surface */
-  --ink: #1d2045;          /* text */
-  --muted: #5d6185;        /* secondary text */
-  --line: #dfe1ee;         /* borders */
-  --thread: #c0245e;       /* accent: magenta */
+  --cloth: #f3f1ec;        /* page: unbleached khaddar */
+  --sheet: #fffdf9;        /* paper */
+  --card: #ffffff;
+  --ink: #1d2045;          /* indigo */
+  --muted: #62658a;
+  --line: #e4e1d8;
+  --soft: #f6f4ef;
+  --thread: #c0245e;       /* magenta thread */
+  --thread-soft: #fbe7ef;
   --thread-ink: #ffffff;
-  --marigold: #e9a100;     /* listening / live */
-  --ok: #1b8a5a;
-  --warn-bg: #fff4dc;
-  --warn-ink: #6b4a00;
+  --marigold: #e9a100;     /* listening */
+  --marigold-soft: #fff3d1;
+  --green: #1d7a55;
+  --warn-bg: #fff4dc; --warn-ink: #6b4a00;
   --font-display: "Tiro Gurmukhi", "Noto Serif Gurmukhi", Georgia, serif;
   --font-ui: "Mukta Mahee", "Noto Sans Gurmukhi", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --shadow: 0 1px 2px rgba(29, 32, 69, .06), 0 8px 28px rgba(29, 32, 69, .07);
+  --shadow-sm: 0 1px 2px rgba(29, 32, 69, .06);
+  --shadow: 0 1px 2px rgba(29, 32, 69, .05), 0 12px 32px -8px rgba(29, 32, 69, .12);
+  --r: 14px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
-    --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
-    --warn-bg: #3a2e10; --warn-ink: #ffe2a3; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --cloth: #111327; --sheet: #191c36; --card: #1a1d38; --ink: #eceefb; --muted: #a6aad0; --line: #2c3056; --soft: #22264a;
+    --thread: #ff5c95; --thread-soft: #3a1c33; --thread-ink: #1a0510; --marigold: #ffc23d; --marigold-soft: #3a2f12;
+    --green: #4fd39a; --warn-bg: #3a2e10; --warn-ink: #ffe2a3;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 14px 34px -10px rgba(0,0,0,.5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --cloth: #12142b; --sheet: #1a1d3a; --ink: #eceefb; --muted: #a3a7cc; --line: #2e3258;
-  --thread: #ff5c95; --thread-ink: #1a0510; --marigold: #ffc23d; --ok: #4fd39a;
-  --warn-bg: #3a2e10; --warn-ink: #ffe2a3; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --cloth: #111327; --sheet: #191c36; --card: #1a1d38; --ink: #eceefb; --muted: #a6aad0; --line: #2c3056; --soft: #22264a;
+  --thread: #ff5c95; --thread-soft: #3a1c33; --thread-ink: #1a0510; --marigold: #ffc23d; --marigold-soft: #3a2f12;
+  --green: #4fd39a; --warn-bg: #3a2e10; --warn-ink: #ffe2a3;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow: 0 1px 2px rgba(0,0,0,.3), 0 14px 34px -10px rgba(0,0,0,.5);
   color-scheme: dark;
 }
 :root[data-theme="light"] { color-scheme: light; }
@@ -46,128 +53,218 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
-body {
-  background: var(--cloth);
-  color: var(--ink);
-  font: 16px/1.55 var(--font-ui);
-  padding-inline: 16px;
-  padding-block: 0 48px;
-}
-.wrap { max-width: 980px; margin-inline: auto; display: grid; gap: 28px; }
+body { background: var(--cloth); color: var(--ink); font: 16px/1.55 var(--font-ui); padding: 0 16px 40px; }
+.wrap { max-width: 1160px; margin-inline: auto; }
 button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--thread); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* phulkari band: rows of small diamonds, like bagh stitching */
+.phulkari {
+  height: 14px; border-radius: 3px; opacity: .9;
+  background:
+    linear-gradient(45deg, transparent 37%, var(--thread) 37% 63%, transparent 63%) 0 0 / 14px 14px,
+    linear-gradient(-45deg, transparent 37%, var(--thread) 37% 63%, transparent 63%) 0 0 / 14px 14px,
+    linear-gradient(45deg, transparent 44%, var(--marigold) 44% 56%, transparent 56%) 7px 0 / 14px 14px,
+    linear-gradient(-45deg, transparent 44%, var(--marigold) 44% 56%, transparent 56%) 7px 0 / 14px 14px;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
 
 /* ---------- header ---------- */
-header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 0; flex-wrap: wrap; }
-.brand { display: flex; align-items: baseline; gap: 10px; }
-.brand .g { font-family: var(--font-display); font-size: 34px; line-height: 1; color: var(--thread); }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0 0; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand .seal {
+  width: 40px; height: 40px; border-radius: 11px; background: var(--thread); color: var(--thread-ink);
+  display: grid; place-items: center; font-family: var(--font-display); font-size: 22px; line-height: 1; padding-top: 4px;
+}
 .brand .l { font-weight: 700; font-size: 18px; letter-spacing: .01em; }
-.top-actions { display: flex; gap: 8px; align-items: center; }
+.brand .l small { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted); letter-spacing: 0; margin-top: -3px; }
 .chip-btn {
-  border: 1px solid var(--line); background: var(--sheet); border-radius: 999px; padding: 6px 12px;
-  cursor: pointer; font-size: 14px; display: inline-flex; gap: 6px; align-items: center;
+  border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 13px;
+  font-size: 14px; display: inline-flex; gap: 6px; align-items: center;
 }
 .chip-btn:hover { border-color: var(--muted); }
 
+.intro { text-align: center; padding: 34px 0 26px; display: grid; justify-items: center; gap: 10px; }
 .intro h1 {
-  font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 5vw, 46px); line-height: 1.15;
-  margin: 0 0 6px; text-wrap: balance;
+  font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 5.4vw, 54px); line-height: 1.12;
+  margin: 0; text-wrap: balance;
 }
-.intro p { margin: 0; color: var(--muted); max-width: 62ch; }
+.intro h1 em { font-style: normal; color: var(--thread); }
+.intro p { margin: 0; color: var(--muted); max-width: 58ch; text-wrap: pretty; }
+.intro .phulkari { width: min(320px, 70%); margin-top: 8px; }
 
-/* ---------- converter ---------- */
-.converter { background: var(--sheet); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
-.rail {
-  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; padding: 14px 16px;
+/* ---------- workspace ---------- */
+.banner { display: none; margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: 15px; }
+.banner.show { display: block; }
+
+.desk {
+  display: grid; gap: 18px; align-items: start;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-areas: "sheet side";
+}
+.paper { grid-area: sheet; background: var(--sheet); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.side { grid-area: side; display: grid; gap: 14px; position: sticky; top: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow-sm); }
+
+/* the sheet */
+.paper-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px 10px 18px;
   border-bottom: 1px solid var(--line);
 }
-.field { display: grid; gap: 3px; min-width: 0; }
-.field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.field select { border: 1px solid var(--line); background: var(--cloth); border-radius: 10px; padding: 7px 10px; max-width: 100%; }
-.field input[type="range"] { accent-color: var(--thread); width: 120px; }
-.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding-bottom: 6px; }
-.toggle input { accent-color: var(--thread); width: 16px; height: 16px; }
-.rail .spacer { flex: 1; }
+.count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; margin-right: auto; }
+.tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn {
+  border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 7px 12px; font-weight: 500; font-size: 14.5px;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; line-height: 1;
+}
+.btn:hover { border-color: var(--muted); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.btn.primary { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.btn.primary:hover { filter: brightness(1.15); }
+.btn.ghost-danger { color: var(--thread); }
+.btn[aria-expanded="true"] { border-color: var(--thread); color: var(--thread); background: var(--thread-soft); }
+.file-btn { cursor: pointer; }
 
-.stage { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 18px 16px 6px; }
+.sheet { position: relative; padding: 0; }
+.example-note {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 14px 18px 0; padding: 8px 12px; border-radius: 10px;
+  background: var(--warn-bg); color: var(--warn-ink); font-size: 14px;
+}
+.example-note button { border: 0; background: transparent; color: inherit; text-decoration: underline; padding: 0; font-weight: 700; }
+#transcript {
+  display: block; width: 100%; min-height: 440px; resize: vertical; border: 0; border-radius: 0;
+  padding: 22px 26px 18px; background: transparent; color: var(--ink);
+  font-size: 22px; line-height: 1.8; font-family: "Noto Sans Gurmukhi", var(--font-ui);
+}
+#transcript:focus { outline: none; }
+.paper:focus-within { border-color: color-mix(in srgb, var(--thread) 45%, var(--line)); }
+.hearing {
+  min-height: 52px; margin: 0; padding: 12px 26px 14px; border-top: 1px dashed var(--line);
+  color: var(--muted); font-style: italic; font-size: 18px; overflow-wrap: anywhere; display: flex; gap: 10px; align-items: baseline;
+}
+.hearing:empty::before { content: attr(data-empty); font-style: normal; font-size: 14px; opacity: .8; font-family: var(--font-ui); }
+
+/* mic card */
+.miccard { padding: 18px 16px 16px; display: grid; justify-items: center; gap: 12px; text-align: center; }
 .mic {
-  width: 74px; height: 74px; border-radius: 50%; border: 0; cursor: pointer; position: relative;
+  width: 92px; height: 92px; border-radius: 50%; border: 0; position: relative;
   background: var(--thread); color: var(--thread-ink); display: grid; place-items: center;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--thread) 35%, transparent);
+  box-shadow: 0 10px 24px -6px color-mix(in srgb, var(--thread) 55%, transparent);
   transition: transform .15s ease, background .2s ease;
 }
-.mic:hover { transform: scale(1.04); }
-.mic svg { width: 32px; height: 32px; }
-.mic[aria-pressed="true"] { background: var(--marigold); color: #241800; }
+.mic:hover:not(:disabled) { transform: scale(1.04); }
+.mic:disabled { opacity: .45; cursor: not-allowed; }
+.mic svg { width: 38px; height: 38px; }
+.mic[aria-pressed="true"] { background: var(--marigold); color: #241800; box-shadow: 0 10px 24px -6px color-mix(in srgb, var(--marigold) 60%, transparent); }
 .mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after {
-  content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--marigold); opacity: .6;
+  content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--marigold); opacity: .6;
   animation: ring 1.6s ease-out infinite;
 }
 .mic[aria-pressed="true"]::after { animation-delay: .8s; }
 @keyframes ring { from { transform: scale(.9); opacity: .7; } to { transform: scale(1.35); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .mic[aria-pressed="true"]::before, .mic[aria-pressed="true"]::after { animation: none; } }
-.state { min-width: 0; display: grid; gap: 2px; }
-.state .s1 { font-weight: 700; font-size: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.state .s2 { color: var(--muted); font-size: 14px; }
-.timer { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--muted); font-size: 15px; }
+.state { min-width: 0; display: grid; gap: 2px; justify-items: center; }
+.state .s1 { font-weight: 700; font-size: 17px; display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.state .s2 { color: var(--muted); font-size: 13.5px; max-width: 30ch; }
+.timer { font-variant-numeric: tabular-nums; font-weight: 500; color: var(--muted); font-size: 14px; }
 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: inline-block; }
-.listening .dot { background: var(--marigold); }
+.listening .dot { background: var(--marigold); box-shadow: 0 0 0 4px var(--marigold-soft); }
 
-.sheet { padding: 8px 16px 0; position: relative; }
-#transcript {
-  width: 100%; min-height: 280px; resize: vertical; border: 1px solid var(--line); border-radius: 14px;
-  padding: 16px 18px; background: var(--sheet); color: var(--ink);
-  font-size: 22px; line-height: 1.8; font-family: "Noto Sans Gurmukhi", var(--font-ui);
+/* language pills */
+.langpills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--soft); border-radius: 12px; padding: 4px; width: 100%; }
+.langpills button {
+  border: 0; background: transparent; border-radius: 9px; padding: 6px 2px 4px; font-size: 14px; color: var(--muted); line-height: 1.3;
 }
-#transcript:focus { outline: none; border-color: var(--thread); }
-.hearing {
-  min-height: 1.8em; padding: 6px 4px 0; color: var(--muted); font-style: italic; overflow-wrap: anywhere;
-}
-.hearing:empty::before { content: attr(data-empty); font-style: normal; opacity: .7; }
-.example-note {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; padding: 8px 12px; border-radius: 10px;
-  background: var(--warn-bg); color: var(--warn-ink); font-size: 14px;
-}
-.example-note button { border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; padding: 0; font-weight: 700; }
+.langpills button .s { display: block; font-size: 11px; opacity: .8; }
+.langpills button[aria-pressed="true"] { background: var(--card); color: var(--ink); font-weight: 700; box-shadow: var(--shadow-sm); }
 
-.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px 16px; }
-.count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; margin-right: auto; }
-.btn {
-  border: 1px solid var(--line); background: var(--cloth); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 500;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.btn:hover { border-color: var(--muted); }
-.btn.primary { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
-.btn.ghost-danger { color: var(--thread); }
+/* settings card */
+.cardhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px 0; }
+.cardhead h2, .cardhead b { margin: 0; font-size: 15px; font-weight: 700; }
+.setgrid { display: grid; gap: 12px; padding: 12px 14px 14px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.field select { border: 1px solid var(--line); background: var(--soft); border-radius: 10px; padding: 7px 10px; width: 100%; }
+.field input[type="range"] { accent-color: var(--thread); width: 100%; }
+.toggle { display: flex; align-items: center; gap: 9px; font-size: 14.5px; cursor: pointer; }
+.toggle input { accent-color: var(--thread); width: 17px; height: 17px; margin: 0; flex: none; }
+.toggle.small { font-size: 13.5px; color: var(--muted); }
 
-.banner { display: none; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: 15px; }
-.banner.show { display: block; }
+/* vocabulary card */
+.vocab { padding: 12px 14px 14px; display: grid; gap: 10px; }
+.vocab-head { display: grid; gap: 2px; }
+.vocab-info { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; min-width: 0; }
+.vocab-info b { font-size: 15px; }
+.vocab-info span { color: var(--muted); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.vocab-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vocab-actions .btn { justify-content: center; }
+.pill { display: inline-block; min-width: 1.6em; padding: 0 6px; border-radius: 999px; background: var(--soft); font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; color: var(--ink); }
+.panel { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--soft); display: grid; gap: 10px; min-width: 0; }
+.panel-sum { margin: 0; font-size: 13.5px; color: var(--muted); }
+.panel textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--card); font-family: "Noto Sans Gurmukhi", var(--font-ui); font-size: 17px; line-height: 1.6; resize: vertical; }
+.panel-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.panel-actions .btn { font-size: 13.5px; min-height: 32px; padding: 6px 10px; }
+.unknowns { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 380px; overflow: auto; }
+.unknowns li { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; padding: 7px 9px; border-radius: 10px; background: var(--card); border: 1px solid var(--line); }
+.unknowns .w { font-family: "Noto Sans Gurmukhi", var(--font-ui); font-size: 18px; font-weight: 600; margin-right: 4px; text-decoration: underline wavy var(--thread); text-underline-offset: 5px; }
+.unknowns .n { color: var(--muted); font-size: 12px; margin-right: auto; font-variant-numeric: tabular-nums; }
+.chip { border: 1px solid var(--line); background: var(--soft); border-radius: 999px; padding: 2px 10px; font-family: "Noto Sans Gurmukhi", var(--font-ui); font-size: 16px; }
+.chip:hover { border-color: var(--thread); color: var(--thread); }
+.chip.add, .chip.skip { font-family: var(--font-ui); font-size: 12.5px; }
+.chip.skip { color: var(--muted); }
+
+/* ---------- help ---------- */
+.help { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 34px; }
+.help > div { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 18px 16px; }
+.help h2 { font-family: var(--font-display); font-weight: 400; font-size: 23px; margin: 0 0 10px; display: flex; align-items: center; gap: 10px; }
+.help h2 .num {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--thread-soft); color: var(--thread); font: 700 13px/26px var(--font-ui); text-align: center; flex: none;
+}
+.help ol, .help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.help .muted { color: var(--muted); font-size: 13.5px; margin: 12px 0 0; }
+table.cmds { border-collapse: collapse; width: 100%; font-size: 15px; }
+table.cmds td { padding: 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.cmds tr:last-child td { border-bottom: 0; }
+table.cmds td:last-child { text-align: right; font-weight: 700; padding-left: 12px; white-space: nowrap; color: var(--thread); }
+footer { color: var(--muted); font-size: 13px; margin-top: 30px; padding-top: 16px; display: grid; gap: 12px; justify-items: center; text-align: center; }
+footer .phulkari { width: 160px; height: 10px; background-size: 10px 10px; opacity: .6; }
+kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--card); }
 
 .toast {
   position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 16px);
-  background: var(--ink); color: var(--sheet); padding: 10px 16px; border-radius: 12px; opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--card); padding: 10px 16px; border-radius: 12px; opacity: 0; pointer-events: none;
   transition: opacity .2s, transform .2s; display: flex; gap: 12px; align-items: center; max-width: calc(100% - 32px);
+  box-shadow: var(--shadow); z-index: 10;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-.toast button { border: 0; background: transparent; color: var(--marigold); font-weight: 700; cursor: pointer; }
+.toast button { border: 0; background: transparent; color: var(--marigold); font-weight: 700; }
 
-/* ---------- help ---------- */
-.help { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
-.help h2 { font-family: var(--font-display); font-weight: 400; font-size: 24px; margin: 0 0 8px; }
-.help ol, .help ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink); }
-.help li span.g { font-family: "Noto Sans Gurmukhi", var(--font-ui); }
-.help .muted { color: var(--muted); font-size: 14px; }
-table.cmds { border-collapse: collapse; width: 100%; font-size: 15px; }
-table.cmds td { padding: 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-table.cmds td:last-child { text-align: right; font-weight: 700; padding-left: 12px; }
-footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
-kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; background: var(--sheet); }
-
+/* ---------- smaller screens ---------- */
+@media (max-width: 900px) {
+  .desk { grid-template-columns: minmax(0, 1fr); grid-template-areas: "mic" "sheet" "set" "vocab"; }
+  .side { display: contents; }
+  .miccard { grid-area: mic; }
+  .setcard { grid-area: set; }
+  .vocabcard { grid-area: vocab; }
+  .help { grid-template-columns: minmax(0, 1fr); }
+  .miccard { grid-template-columns: auto 1fr; justify-items: start; text-align: left; align-items: center; }
+  .miccard .state { justify-items: start; }
+  .miccard .state .s1 { justify-content: flex-start; }
+  .miccard .mic { width: 76px; height: 76px; grid-row: span 1; }
+  .miccard .langpills { grid-column: 1 / -1; }
+}
 @media (max-width: 560px) {
-  .stage { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-  .state .s1 { justify-content: center; }
-  #transcript { font-size: 20px; min-height: 240px; }
+  .intro { padding: 22px 0 18px; }
+  #transcript { font-size: 20px; min-height: 300px; padding: 16px 16px 12px; }
+  .hearing { padding: 10px 16px 12px; }
+  .paper-head { padding: 10px 10px 10px 14px; }
   .count { width: 100%; }
+  .tools .btn { padding: 7px 10px; }
+  .tools .btn .t { display: none; }
 }
 
 /* printing = "Save as PDF": only the text, in the chosen font */
@@ -182,86 +279,148 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="g" lang="pa">ਬੋਲੋ</span><span class="l">Bolo Punjabi</span></div>
-    <div class="top-actions">
-      <button class="chip-btn" id="themeBtn" type="button" aria-label="Switch light or dark">◐ <span id="themeLabel">Theme</span></button>
-    </div>
+    <div class="brand"><span class="seal" lang="pa" aria-hidden="true">ਬੋ</span><span class="l">Bolo Punjabi <small lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ</small></span></div>
+    <button class="chip-btn" id="themeBtn" type="button" aria-label="Switch light or dark">◐ <span id="themeLabel">Theme</span></button>
   </header>
 
   <section class="intro">
-    <h1 lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ, ਲਿਖੋ ਗੁਰਮੁਖੀ</h1>
+    <h1 lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ, <em>ਲਿਖੋ ਗੁਰਮੁਖੀ</em></h1>
     <p>Speak Punjabi and watch it appear as editable Gurmukhi text. Also works for Hindi, Urdu and English. Free, no sign-up, nothing to install.</p>
+    <div class="phulkari" aria-hidden="true"></div>
   </section>
 
   <div class="banner" id="banner" role="alert"></div>
 
-  <section class="converter" aria-label="Speech to text converter">
-    <div class="rail">
-      <div class="field">
-        <label for="lang">Language</label>
-        <select id="lang">
-          <option value="pa">ਪੰਜਾਬੀ · Punjabi (Gurmukhi)</option>
-          <option value="hi">हिन्दी · Hindi</option>
-          <option value="ur">اردو · Urdu</option>
-          <option value="en-IN">English (India)</option>
-          <option value="en-US">English (US)</option>
-        </select>
+  <main class="desk" aria-label="Speech to text converter">
+    <!-- the sheet -->
+    <section class="paper" aria-label="Your text">
+      <div class="paper-head">
+        <span class="count" id="count">0 words · 0 characters</span>
+        <div class="tools">
+          <button class="btn primary" id="copyBtn" type="button" title="Copy all (Ctrl+Shift+C)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg><span class="t">Copy</span>
+          </button>
+          <button class="btn" id="txtBtn" type="button" title="Download as a text file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>TXT
+          </button>
+          <button class="btn" id="docBtn" type="button" title="Download for Microsoft Word">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>Word
+          </button>
+          <button class="btn" id="pdfBtn" type="button" title="Print or save as PDF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg>PDF
+          </button>
+          <button class="btn ghost-danger" id="clearBtn" type="button" title="Clear all text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg><span class="t">Clear</span>
+          </button>
+        </div>
       </div>
-      <div class="field">
-        <label for="font">Font</label>
-        <select id="font"></select>
+      <div class="sheet">
+        <p class="example-note" id="exampleNote" hidden>This is example text. <button type="button" id="clearExample">Clear it and start</button></p>
+        <textarea id="transcript" spellcheck="false" aria-label="Transcript" placeholder="ਇੱਥੇ ਤੁਹਾਡੀ ਗੱਲ ਲਿਖੀ ਜਾਵੇਗੀ…"></textarea>
+        <div class="hearing" id="hearing" data-empty="Words you're saying appear here first, then move into the text." aria-live="off"></div>
       </div>
-      <div class="field">
-        <label for="size">Text size <span id="sizeVal">22</span>px</label>
-        <input type="range" id="size" min="14" max="44" value="22" />
-      </div>
-      <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">੧੨੩</span></label>
-      <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
-    </div>
+    </section>
 
-    <div class="stage">
-      <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start speaking">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
-      </button>
-      <div class="state" id="state" aria-live="polite">
-        <div class="s1"><span class="dot"></span><span id="status">Ready to listen</span><span class="timer" id="timer">00:00</span></div>
-        <div class="s2" id="hint">Press the mic (or <kbd>Ctrl</kbd>+<kbd>M</kbd>) and start speaking. Text goes where your cursor is.</div>
-      </div>
-    </div>
+    <aside class="side">
+      <!-- mic -->
+      <section class="card miccard" aria-label="Microphone">
+        <button class="mic" id="mic" type="button" aria-pressed="false" aria-label="Start speaking">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3.5"/></svg>
+        </button>
+        <div class="state" id="state" aria-live="polite">
+          <div class="s1"><span class="dot"></span><span id="status">Ready to listen</span><span class="timer" id="timer">00:00</span></div>
+          <div class="s2" id="hint">Press the mic (or <kbd>Ctrl</kbd>+<kbd>M</kbd>) and start speaking. Text goes where your cursor is.</div>
+        </div>
+        <div class="langpills" role="group" aria-label="Language" id="langPills">
+          <button type="button" data-lang="pa" lang="pa">ਪੰਜਾਬੀ<span class="s">Punjabi</span></button>
+          <button type="button" data-lang="hi" lang="hi">हिन्दी<span class="s">Hindi</span></button>
+          <button type="button" data-lang="ur" lang="ur">اردو<span class="s">Urdu</span></button>
+          <button type="button" data-lang="en">English<span class="s">IN · US</span></button>
+        </div>
+      </section>
 
-    <div class="sheet">
-      <p class="example-note" id="exampleNote" hidden>This is example text. <button type="button" id="clearExample">Clear it and start</button></p>
-      <textarea id="transcript" spellcheck="false" aria-label="Transcript" placeholder="ਇੱਥੇ ਤੁਹਾਡੀ ਗੱਲ ਲਿਖੀ ਜਾਵੇਗੀ…"></textarea>
-      <div class="hearing" id="hearing" data-empty="Words you're saying appear here first, then move into the text." aria-live="off"></div>
-    </div>
+      <!-- settings -->
+      <section class="card setcard" aria-label="Settings">
+        <div class="cardhead"><h2>Settings</h2></div>
+        <div class="setgrid">
+          <div class="field">
+            <label for="lang">Language</label>
+            <select id="lang">
+              <option value="pa">ਪੰਜਾਬੀ · Punjabi (Gurmukhi)</option>
+              <option value="hi">हिन्दी · Hindi</option>
+              <option value="ur">اردو · Urdu</option>
+              <option value="en-IN">English (India)</option>
+              <option value="en-US">English (US)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="font">Font</label>
+            <select id="font"></select>
+          </div>
+          <div class="field">
+            <label for="size">Text size · <span id="sizeVal">22</span>px</label>
+            <input type="range" id="size" min="14" max="44" value="22" />
+          </div>
+          <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">੧੨੩</span></label>
+          <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
+        </div>
+      </section>
 
-    <div class="bar">
-      <span class="count" id="count">0 words · 0 characters</span>
-      <button class="btn primary" id="copyBtn" type="button">Copy</button>
-      <button class="btn" id="txtBtn" type="button">Download TXT</button>
-      <button class="btn" id="docBtn" type="button">Download DOC</button>
-      <button class="btn" id="pdfBtn" type="button">Print / PDF</button>
-      <button class="btn ghost-danger" id="clearBtn" type="button">Clear</button>
-    </div>
-  </section>
+      <!-- vocabulary -->
+      <section class="card vocabcard" aria-label="Vocabulary">
+        <div class="vocab" id="vocab">
+          <div class="vocab-head">
+            <div class="vocab-info">
+              <b>Vocabulary</b>
+              <span id="vocabStat">Loading Mahan Kosh words…</span>
+            </div>
+          </div>
+          <div class="vocab-actions">
+            <button class="btn" id="checkBtn" type="button" aria-expanded="false" aria-controls="checkPanel">Check words</button>
+            <button class="btn" id="myWordsBtn" type="button" aria-expanded="false" aria-controls="myPanel">My words <span class="pill" id="myCount">0</span></button>
+          </div>
+          <label class="toggle small"><input type="checkbox" id="autofix" /> Fix one-letter slips automatically while I speak</label>
+
+          <div class="panel" id="checkPanel" hidden>
+            <p class="panel-sum" id="checkSum"></p>
+            <ul class="unknowns" id="unknownList"></ul>
+            <div class="panel-actions"><button class="btn" id="learnAll" type="button" hidden>They're all correct: add them to my words</button></div>
+          </div>
+
+          <div class="panel" id="myPanel" hidden>
+            <p class="panel-sum">Names, places and terms you use often. They're preferred when the recogniser is unsure, never flagged as mistakes, and saved in this browser.</p>
+            <label class="sr" for="myWordsText">My words, one per line</label>
+            <textarea id="myWordsText" rows="5" spellcheck="false" placeholder="ਹਰਪ੍ਰੀਤ&#10;ਟੋਰਾਂਟੋ&#10;ਬਰੈਂਪਟਨ"></textarea>
+            <div class="panel-actions">
+              <button class="btn primary" id="saveWords" type="button">Save words</button>
+              <button class="btn" id="learnBtn" type="button">Add new words from my text</button>
+              <label class="btn file-btn" for="importWords">Import .txt</label>
+              <input type="file" id="importWords" accept=".txt,text/plain" hidden />
+              <button class="btn" id="exportWords" type="button">Download list</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </main>
 
   <section class="help">
     <div>
-      <h2>How it works</h2>
+      <h2><span class="num">1</span>How it works</h2>
       <ol>
         <li>Press the mic and allow microphone access when your browser asks.</li>
         <li>Speak naturally. Pause briefly between sentences.</li>
         <li>Fix anything by typing, then copy or download. You can keep talking while you edit.</li>
       </ol>
-      <p class="muted">Works best in the latest Chrome or Edge, online. Your speech is processed by the browser's speech service; this page keeps your text only on your device.</p>
+      <p class="muted">Punjabi vocabulary: about 76,000 words from Bhai Kahan Singh Nabha's Mahan Kosh, plus any words you add. Works best in the latest Chrome or Edge, online. Your speech is processed by the browser's speech service; this page keeps your text only on your device.</p>
     </div>
     <div>
-      <h2>Say the punctuation</h2>
+      <h2><span class="num">2</span>Say the punctuation</h2>
       <table class="cmds" id="cmdTable" aria-label="Spoken punctuation commands"></table>
       <p class="muted">Turn off “Spoken punctuation” if you need these words written out.</p>
     </div>
     <div>
-      <h2>Tips for better results</h2>
+      <h2><span class="num">3</span>Tips for better results</h2>
       <ul>
         <li>Use a headset or keep the mic 15–20 cm from your mouth.</li>
         <li>Quiet room, steady pace, clear endings.</li>
@@ -271,12 +430,16 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     </div>
   </section>
 
-  <footer>Bolo Punjabi · Your text is saved only in this browser so you don't lose it. Shortcuts: <kbd>Ctrl</kbd>+<kbd>M</kbd> start/stop · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copy all.</footer>
+  <footer>
+    <div class="phulkari" aria-hidden="true"></div>
+    <div>Bolo Punjabi · Your text is saved only in this browser so you don't lose it. Shortcuts: <kbd>Ctrl</kbd>+<kbd>M</kbd> start/stop · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copy all.</div>
+  </footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAction" hidden></button></div>
 <div id="printOut"></div>
 
+<script src="mahan-kosh-words.js"></script>
 <script>
 (() => {
   // ---------------- languages ----------------
@@ -409,7 +572,10 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   function insertText(chunk) {
     if (!chunk) return;
     if (!$('exampleNote').hidden) clearExample();
-    const start = ta.selectionStart ?? ta.value.length, end = ta.selectionEnd ?? ta.value.length;
+    // where you last put the cursor yourself; otherwise the end of the text
+    const focused = document.activeElement === ta;
+    const start = focused ? ta.selectionStart : userCaret ? userCaret[0] : ta.value.length;
+    const end = focused ? ta.selectionEnd : userCaret ? userCaret[1] : ta.value.length;
     const before = ta.value.slice(0, start), after = ta.value.slice(end);
     const needSpace = before && !/[\s\n]$/.test(before) && !/^[\n।,?!.۔،؟]/.test(chunk);
     let piece = (needSpace ? ' ' : '') + chunk;
@@ -420,8 +586,13 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     ta.value = before + piece + after;
     const pos = before.length + piece.length;
     ta.setSelectionRange(pos, pos);
+    if (focused || userCaret) userCaret = [pos, pos];
     onTextChange();
   }
+
+  let userCaret = null;
+  const rememberCaret = () => { userCaret = [ta.selectionStart, ta.selectionEnd]; };
+  ['click', 'keyup', 'select'].forEach((ev) => ta.addEventListener(ev, rememberCaret));
 
   function counts() {
     const t = ta.value.trim();
@@ -438,7 +609,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 
   // ---------------- speech recognition ----------------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null;
+  let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null, noPhrases = false;
 
   function banner(msg) { const b = $('banner'); b.textContent = msg; b.classList.toggle('show', !!msg); }
   function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
@@ -462,7 +633,14 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     r.lang = L().codes[codeIdx] || L().codes[0];
     r.continuous = true;
     r.interimResults = true;
-    r.maxAlternatives = 1;
+    r.maxAlternatives = 5;
+    // Ask the browser to listen out for your own words, where it supports that (experimental)
+    if (window.SpeechRecognitionPhrase && 'phrases' in r && !noPhrases) {
+      try {
+        const mine = myWords(lang).slice(0, 300);
+        if (mine.length) r.phrases = mine.map((w) => new SpeechRecognitionPhrase(w, 3));
+      } catch {}
+    }
     r.onstart = () => {
       $('state').classList.add('listening');
       mic.setAttribute('aria-pressed', 'true');
@@ -474,13 +652,14 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
-        if (res.isFinal) insertText(processChunk(res[0].transcript));
+        if (res.isFinal) insertText(autoFix(processChunk(bestAlternative(res))));
         else interim += res[0].transcript;
       }
       hearing.textContent = interim;
     };
     r.onerror = (e) => {
       if (e.error === 'no-speech' || e.error === 'aborted') return; // keep going quietly
+      if (e.error === 'phrases-not-supported') { noPhrases = true; return; } // restarts without them
       if (e.error === 'language-not-supported' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
       wanted = false;
       const msgs = {
@@ -514,7 +693,6 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   function start() {
     if (!SR || wanted) return;
     wanted = true; codeIdx = 0;
-    if (document.activeElement !== ta) ta.setSelectionRange(ta.value.length, ta.value.length);
     try { rec = makeRec(); rec.start(); startTimer(); }
     catch (e) { wanted = false; banner('Couldn’t start the microphone. Reload the page and try again.'); }
   }
@@ -582,7 +760,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   $('clearBtn').addEventListener('click', () => {
     if (!ta.value) return;
     lastCleared = ta.value;
-    ta.value = '';
+    ta.value = ''; userCaret = null;
     $('exampleNote').hidden = true;
     onTextChange();
     toast('Text cleared', 'Undo', () => { ta.value = lastCleared; onTextChange(); });
@@ -602,7 +780,9 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     const was = wanted;
     if (was) stop();
     lang = langSel.value; store.set('lang', lang);
-    fillFonts(); applyLook();
+    fillFonts(); applyLook(); updateVocabStat();
+    if (!$('myPanel').hidden) fillMyWords();
+    if (!$('checkPanel').hidden) renderCheck();
     if (!$('exampleNote').hidden) { ta.value = L().example; counts(); }
     if (was) setTimeout(start, 300);
   });
@@ -629,8 +809,214 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     if (mod && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyAll(); }
   });
 
+
+  // ---------------- vocabulary ----------------
+  // Built-in Punjabi vocabulary: headwords and text of Bhai Kahan Singh Nabha's Mahan Kosh
+  // (mahan-kosh-words.js, ordered most-common first). Plus "my words", saved in this browser.
+  const PA_WORDS = (window.BOLO_VOCAB_PA || '').split(' ').filter(Boolean);
+  const rank = new Map(PA_WORDS.map((w, i) => [w, i]));
+  const byLen = new Map();
+  PA_WORDS.forEach((w) => { const n = [...w].length; if (!byLen.has(n)) byLen.set(n, []); byLen.get(n).push(w); });
+  const WORD_RE = /[ਁ-ੵ]+|[\p{L}\p{M}]+/gu;
+  const isGur = (w) => /^[ਁ-ੵ]+$/.test(w);
+
+  function myWords(l) { return store.get('myWords.' + l, []); }
+  function setMyWords(l, list) {
+    const clean = [...new Set(list.map((w) => w.trim()).filter(Boolean))];
+    store.set('myWords.' + l, clean);
+    updateVocabStat();
+    return clean;
+  }
+  const mySet = () => new Set(myWords(lang));
+  function known(w, mine = mySet()) {
+    return mine.has(w) || (lang === 'pa' && rank.has(w)) || /^[\d੦-੯]+$/.test(w);
+  }
+  function hasVocab() { return (lang === 'pa' && PA_WORDS.length > 0) || myWords(lang).length > 0; }
+
+  // Of the recogniser's guesses, keep the one whose words we know best; ties keep its top guess.
+  function bestAlternative(res) {
+    if (res.length < 2 || !hasVocab()) return res[0].transcript;
+    const mine = mySet();
+    let best = res[0].transcript, bestScore = -1;
+    for (let i = 0; i < res.length; i++) {
+      const words = res[i].transcript.match(WORD_RE) || [];
+      if (!words.length) continue;
+      let score = 0;
+      for (const w of words) score += mine.has(w) ? 1.5 : known(w, mine) ? 1 : 0;
+      score = score / words.length - i * 0.02; // small nudge toward the recogniser's own order
+      if (score > bestScore + 1e-9) { bestScore = score; best = res[i].transcript; }
+    }
+    return best;
+  }
+
+  // Punjabi-aware edit distance: swapping look-alike/sound-alike signs costs half.
+  const NEAR = [['ਸ', 'ਸ਼'], ['ਜ', 'ਜ਼'], ['ਫ', 'ਫ਼'], ['ਖ', 'ਖ਼'], ['ਗ', 'ਗ਼'], ['ਲ', 'ਲ਼'], ['ਂ', 'ੰ'],
+    ['ਿ', 'ੀ'], ['ੁ', 'ੂ'], ['ੇ', 'ੈ'], ['ੋ', 'ੌ'], ['ਣ', 'ਨ'], ['ੜ', 'ਰ'], ['ਬ', 'ਵ'], ['ਇ', 'ਈ'], ['ਉ', 'ਊ'], ['ਏ', 'ਐ'], ['ਓ', 'ਔ']];
+  const nearMap = new Map(); NEAR.forEach(([a, b]) => { nearMap.set(a + b, 1); nearMap.set(b + a, 1); });
+  const LIGHT = new Set(['ੱ', 'ਂ', 'ੰ', '਼']);
+  const unit = (w) => w.normalize('NFD').match(/.਼?/gu) || [];
+  function dist(a, b, max) {
+    const A = unit(a), B = unit(b);
+    if (Math.abs(A.length - B.length) > max) return max + 1;
+    let prev = Array.from({ length: B.length + 1 }, (_, j) => j * 1);
+    for (let i = 1; i <= A.length; i++) {
+      const cur = [i];
+      let rowMin = cur[0];
+      for (let j = 1; j <= B.length; j++) {
+        const x = A[i - 1], y = B[j - 1];
+        const sub = x === y ? 0 : nearMap.has(x + '|' + y) ? 0.5 : 1;
+        const del = LIGHT.has(x) ? 0.5 : 1, ins = LIGHT.has(y) ? 0.5 : 1;
+        cur[j] = Math.min(prev[j] + del, cur[j - 1] + ins, prev[j - 1] + sub);
+        rowMin = Math.min(rowMin, cur[j]);
+      }
+      if (rowMin > max) return max + 1;
+      prev = cur;
+    }
+    return prev[B.length];
+  }
+
+  function suggest(w, max = 2, limit = 3) {
+    const pool = [];
+    const mine = myWords(lang);
+    const n = [...w].length;
+    const cands = mine.concat(lang === 'pa' ? [].concat(...[-2, -1, 0, 1, 2].map((d) => byLen.get(n + d) || [])) : []);
+    const W = unit(w), wl = W.length;
+    for (const c of cands) {
+      if (c === w) continue;
+      const C = unit(c);
+      if (Math.abs(C.length - wl) > max * 2) continue;
+      let shared = 0; const pool2 = W.slice();
+      for (const x of C) { const k = pool2.indexOf(x); if (k >= 0) { shared++; pool2[k] = null; } }
+      if (wl - shared > max * 2 || C.length - shared > max * 2) continue;
+      const d = dist(w, c, max);
+      if (d <= max) pool.push({ w: c, d, r: mine.includes(c) ? -1 : rank.get(c) ?? 1e9 });
+    }
+    pool.sort((a, b) => a.d - b.d || a.r - b.r);
+    return [...new Map(pool.map((p) => [p.w, p])).values()].slice(0, limit);
+  }
+
+  // Optional: replace a word we don't know when exactly one known word is a single small slip away.
+  function autoFix(text) {
+    if (!$('autofix').checked || !hasVocab()) return text;
+    const mine = mySet();
+    return text.replace(WORD_RE, (w) => {
+      if (!isGur(w) || known(w, mine) || [...w].length < 3) return w;
+      const s = suggest(w, 1, 2);
+      return s.length && s[0].d <= 1 && (s.length === 1 || s[1].d > s[0].d) ? s[0].w : w;
+    });
+  }
+
+  function updateVocabStat() {
+    const n = myWords(lang).length;
+    $('myCount').textContent = n;
+    $('vocabStat').textContent = lang === 'pa'
+      ? (PA_WORDS.length ? `${PA_WORDS.length.toLocaleString()} Mahan Kosh words + ${n} of yours` : `Mahan Kosh word list not found (mahan-kosh-words.js) · ${n} of your words`)
+      : `${n} of your words for this language`;
+    $('checkBtn').disabled = !hasVocab();
+  }
+
+  function replaceAll(from, to) {
+    const re = new RegExp('(^|[^\\u0A01-\\u0A75\\p{L}\\p{M}])' + from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=$|[^\\u0A01-\\u0A75\\p{L}\\p{M}])', 'gu');
+    ta.value = ta.value.replace(re, (m, pre) => pre + to);
+    userCaret = null;
+    onTextChange();
+  }
+
+  function unknownWords() {
+    const mine = mySet(), seen = new Map();
+    for (const w of ta.value.match(WORD_RE) || []) {
+      if (lang === 'pa' && !isGur(w)) continue;
+      if (!known(w, mine)) seen.set(w, (seen.get(w) || 0) + 1);
+    }
+    return [...seen];
+  }
+
+  let ignored = new Set();
+  function renderCheck() {
+    const list = $('unknownList');
+    const items = unknownWords().filter(([w]) => !ignored.has(w));
+    list.innerHTML = '';
+    $('checkSum').textContent = !ta.value.trim()
+      ? 'Nothing to check yet.'
+      : items.length
+        ? `${items.length} word${items.length === 1 ? '' : 's'} not in the vocabulary. Pick a suggestion to replace it everywhere, or add it to your words if it's right.`
+        : 'Every word is in the vocabulary ✓';
+    $('learnAll').hidden = items.length === 0;
+    for (const [w, n] of items.slice(0, 80)) {
+      const li = document.createElement('li');
+      const ww = document.createElement('span'); ww.className = 'w'; ww.textContent = w;
+      const nn = document.createElement('span'); nn.className = 'n'; nn.textContent = n > 1 ? `×${n}` : '';
+      li.append(ww, nn);
+      for (const s of suggest(w)) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = s.w;
+        b.title = `Replace “${w}” with “${s.w}”`;
+        b.addEventListener('click', () => { replaceAll(w, s.w); renderCheck(); toast(`Replaced with ${s.w}`); });
+        li.append(b);
+      }
+      const add = document.createElement('button'); add.type = 'button'; add.className = 'chip add'; add.textContent = '+ My words';
+      add.addEventListener('click', () => { setMyWords(lang, myWords(lang).concat(w)); fillMyWords(); renderCheck(); toast(`Added ${w} to your words`); });
+      const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'chip skip'; skip.textContent = 'Ignore';
+      skip.addEventListener('click', () => { ignored.add(w); renderCheck(); });
+      li.append(add, skip);
+      list.append(li);
+    }
+  }
+
+  function togglePanel(btn, panel, onOpen) {
+    const open = panel.hidden;
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    if (open && onOpen) onOpen();
+  }
+  function fillMyWords() { $('myWordsText').value = myWords(lang).join('\n'); }
+
+  $('checkBtn').addEventListener('click', () => togglePanel($('checkBtn'), $('checkPanel'), () => { ignored = new Set(); renderCheck(); }));
+  $('myWordsBtn').addEventListener('click', () => togglePanel($('myWordsBtn'), $('myPanel'), fillMyWords));
+  $('saveWords').addEventListener('click', () => {
+    const n = setMyWords(lang, $('myWordsText').value.split(/[\n,]+/)).length;
+    fillMyWords(); toast(`Saved ${n} word${n === 1 ? '' : 's'}`);
+    if (!$('checkPanel').hidden) renderCheck();
+  });
+  const learn = () => {
+    const fresh = unknownWords().map(([w]) => w);
+    if (!fresh.length) return toast('No new words in your text');
+    setMyWords(lang, myWords(lang).concat(fresh)); fillMyWords();
+    toast(`Added ${fresh.length} new word${fresh.length === 1 ? '' : 's'} from your text`);
+    if (!$('checkPanel').hidden) renderCheck();
+  };
+  $('learnBtn').addEventListener('click', learn);
+  $('learnAll').addEventListener('click', learn);
+  $('importWords').addEventListener('change', async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const words = ((await f.text()).match(WORD_RE) || []);
+    const before = myWords(lang).length;
+    const n = setMyWords(lang, myWords(lang).concat(words)).length - before;
+    fillMyWords(); e.target.value = '';
+    toast(`Imported ${n} new word${n === 1 ? '' : 's'}`);
+  });
+  $('exportWords').addEventListener('click', () => {
+    const list = myWords(lang);
+    if (!list.length) return toast('Your word list is empty');
+    save(new Blob(['﻿' + list.join('\n')], { type: 'text/plain;charset=utf-8' }), `bolo-my-words-${lang}.txt`);
+  });
+  ta.addEventListener('input', () => { if (!$('checkPanel').hidden) { clearTimeout(ta._ck); ta._ck = setTimeout(renderCheck, 600); } });
+  $('autofix').checked = store.get('autofix', false);
+  $('autofix').addEventListener('change', () => store.set('autofix', $('autofix').checked));
+
+  // ---------------- language pills (quick switch, kept in step with the Language menu) ----------------
+  const pills = [...document.querySelectorAll('#langPills button')];
+  function syncPills() { pills.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang || (b.dataset.lang === 'en' && lang.startsWith('en'))))); }
+  pills.forEach((b) => b.addEventListener('click', () => {
+    const want = b.dataset.lang === 'en' ? (lang.startsWith('en') ? lang : store.get('enVariant', 'en-IN')) : b.dataset.lang;
+    if (want === lang) return;
+    langSel.value = want;
+    langSel.dispatchEvent(new Event('change'));
+  }));
+  langSel.addEventListener('change', () => { if (lang.startsWith('en')) store.set('enVariant', lang); syncPills(); });
+  syncPills();
+
   // ---------------- first view ----------------
-  fillFonts(); applyLook(); applyTheme();
+  fillFonts(); applyLook(); applyTheme(); updateVocabStat();
   const draft = store.get('draft', '');
   if (draft) { ta.value = draft; }
   else { ta.value = L().example; $('exampleNote').hidden = false; }
