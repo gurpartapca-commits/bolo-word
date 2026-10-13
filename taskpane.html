@@ -635,7 +635,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
 
   // ================= speech recognition =================
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, wanted = false, codeIdx = 0, tick = null, t0 = 0, noPhrases = false;
+  let rec = null, wanted = false, codeIdx = 0, tick = null, t0 = 0, noPhrases = false, heard = false, netFails = 0;
   const fmt = (ms) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
   function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
@@ -669,6 +669,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
+        heard = true; netFails = 0;
         if (res.isFinal) {
           const text = autoFix(clean(bestAlternative(res)));
           if (mode === 'live') insertIntoWord(text); else addToDraft(text);
@@ -680,7 +681,10 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       if (e.error === 'no-speech' || e.error === 'aborted') return;
       if (e.error === 'phrases-not-supported') { noPhrases = true; return; }
       if (e.error === 'language-not-supported' && codeIdx < codes().length - 1) { codeIdx++; return; }
-      if (e.error === 'network' && codeIdx < codes().length - 1) { codeIdx++; return; }
+      if (e.error === 'network') {
+        if (!heard && codeIdx < codes().length - 1) { codeIdx++; return; }
+        if (netFails < 5) { netFails++; return; }
+      }
       wanted = false;
       const key = { 'not-allowed': 'blocked', 'service-not-allowed': 'unsupported', network: 'network', 'audio-capture': 'nomic', 'language-not-supported': 'lang' }[e.error];
       showBanner(key ? HELP[key] : 'Listening stopped (' + e.error + '). Press Try again.', key !== 'nomic' && key !== 'network');
@@ -703,7 +707,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
 
   async function start() {
     if (!SR || wanted) return;
-    wanted = true; codeIdx = 0;
+    wanted = true; codeIdx = 0; heard = false; netFails = 0;
     showBanner('');
     setStatus('Asking for the microphone…', 'If a box appears, choose Allow.');
     const m = await ensureMic();

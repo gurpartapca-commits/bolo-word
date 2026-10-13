@@ -609,7 +609,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 
   // ---------------- speech recognition ----------------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null, noPhrases = false;
+  let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null, noPhrases = false, heard = false, netFails = 0;
 
   function banner(msg) { const b = $('banner'); b.textContent = msg; b.classList.toggle('show', !!msg); }
   function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
@@ -652,6 +652,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
+        heard = true; netFails = 0;
         if (res.isFinal) insertText(autoFix(processChunk(bestAlternative(res))));
         else interim += res[0].transcript;
       }
@@ -662,7 +663,12 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       if (e.error === 'phrases-not-supported') { noPhrases = true; return; } // restarts without them
       if (e.error === 'language-not-supported' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
       // Edge can report "network" when it doesn't support a language code, so try the other code too.
-      if (e.error === 'network' && codeIdx < L().codes.length - 1) { codeIdx++; return; }
+      // A dropped connection (Edge drops it about once a minute): reconnect and keep listening.
+      // If this language code never worked at all, try the other code first.
+      if (e.error === 'network') {
+        if (!heard && codeIdx < L().codes.length - 1) { codeIdx++; return; }
+        if (netFails < 5) { netFails++; return; }
+      }
       wanted = false;
       const msgs = {
         'not-allowed': 'Microphone access is blocked. Click the lock or camera icon in the address bar, allow the microphone for this site, then press the mic again.',
@@ -694,7 +700,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 
   function start() {
     if (!SR || wanted) return;
-    wanted = true; codeIdx = 0;
+    wanted = true; codeIdx = 0; heard = false; netFails = 0;
     try { rec = makeRec(); rec.start(); startTimer(); }
     catch (e) { wanted = false; banner('Couldn’t start the microphone. Reload the page and try again.'); }
   }
