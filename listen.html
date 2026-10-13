@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bolo · Listening</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script src="bridge.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Sans+Devanagari&family=Noto+Naskh+Arabic&display=swap" />
@@ -60,14 +61,18 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
 <script>
 (() => {
   const q = new URLSearchParams(location.search);
-  const codes = (q.get('codes') || 'pa-IN').split(',');
-  const name = q.get('name') || '';
+  let codes = (q.get('codes') || 'pa-IN').split(',');
+  let name = q.get('name') || '';
+  // Linked mode: this is a normal browser tab working for the Bolo panel in the Word app.
+  const linked = !!(window.BoloBridge && BoloBridge.isLinkPage());
+  let dc = null;
   const $ = (id) => document.getElementById(id);
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null, wanted = true, codeIdx = 0, ready = false, netTries = 0, heard = false;
   document.getElementById('heard').dir = q.get('dir') || 'ltr';
 
   function send(msg) {
+    if (linked) { try { if (dc && dc.readyState === 'open') dc.send(JSON.stringify(msg)); } catch {} return; }
     try { if (ready) Office.context.ui.messageParent(JSON.stringify(msg)); } catch {}
   }
   function warn(text) { $('warn').textContent = text; $('warn').hidden = !text; }
@@ -80,7 +85,7 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
       document.body.classList.add('on');
       $('status').textContent = 'Listening' + (name ? ' · ' + name : '');
       warn(''); send({ t: 'state', on: true });
-      backToWord();
+      if (!linked) backToWord();
     };
     r.onresult = (e) => {
       let interim = '';
@@ -113,7 +118,7 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
       $('heard').textContent = '';
       if (wanted) { try { rec = makeRec(); rec.start(); return; } catch {} }
       document.body.classList.remove('on');
-      $('status').textContent = 'Stopped';
+      $('status').textContent = linked ? (dc && dc.readyState === 'open' ? 'Linked to Word · press the mic in Word to speak' : 'Not linked') : 'Stopped';
       send({ t: 'state', on: false });
     };
     return r;
@@ -124,7 +129,11 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
     try { rec = makeRec(); rec.start(); } catch (e) { warn('Couldn’t start listening.'); send({ t: 'error', error: 'start' }); }
   }
 
-  $('orb').addEventListener('click', () => { wanted = false; try { rec && rec.stop(); } catch {} send({ t: 'stop' }); });
+  function stopListening() { wanted = false; try { rec && rec.stop(); } catch {} }
+  $('orb').addEventListener('click', () => {
+    if (linked) { if (document.body.classList.contains('on')) { stopListening(); } else if (dc && dc.readyState === 'open') { wanted = true; netTries = 0; begin(); } return; }
+    stopListening(); send({ t: 'stop' });
+  });
 
   // ---- where the window sits: top-right the first time, then wherever you last left it ----
   const POS = 'bolo.listen.pos';
@@ -152,11 +161,36 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
     setTimeout(() => { try { window.opener && window.opener.focus(); } catch {} try { window.blur(); } catch {} }, 600);
   }
 
-  place();
-  Office.onReady(() => {
-    ready = true;
-    begin();
-  });
+  if (linked) {
+    // ---- linked to the Word app: wait for the panel's commands ----
+    document.title = 'Bolo · linked to Word';
+    $('status').textContent = 'Linking to Word…';
+    $('hint').textContent = 'Keep this tab open while you dictate in Word. You can put another tab in front of it.';
+    BoloBridge.join({
+      onOpen: (channel) => {
+        dc = channel;
+        $('status').textContent = 'Linked to Word · press the mic in Word to speak';
+        send({ t: 'hello' });
+      },
+      onMessage: (m) => {
+        if (m.t === 'cfg') {
+          if (m.codes) codes = m.codes; if (m.name) name = m.name;
+          document.getElementById('heard').dir = m.dir || 'ltr'; codeIdx = 0; heard = false;
+        } else if (m.t === 'start') { if (!document.body.classList.contains('on')) { wanted = true; netTries = 0; begin(); } }
+        else if (m.t === 'stop') stopListening();
+      },
+      onClose: () => { stopListening(); dc = null; $('status').textContent = 'Word closed the link'; $('hint').textContent = 'You can close this tab. Press the mic in Word to link again.'; }
+    }).catch((err) => {
+      $('status').textContent = 'Couldn’t link to Word';
+      warn('The link didn’t complete (' + ((err && err.message) || err) + '). Close this tab and press the mic in Word again.');
+    });
+  } else {
+    place();
+    Office.onReady(() => {
+      ready = true;
+      begin();
+    });
+  }
 })();
 </script>
 </body>

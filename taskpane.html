@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bolo Punjabi</title>
 <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script src="bridge.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tiro+Gurmukhi&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&display=swap" />
@@ -95,6 +96,8 @@ button { cursor: pointer; }
 .banner .diag summary { font-weight: 400; font-size: 11.5px; opacity: .8; }
 .banner .diag summary::before { content: none; }
 .banner .diag code { display: block; margin-top: 4px; font: 11px/1.4 ui-monospace, Consolas, monospace; white-space: pre-wrap; word-break: break-all; user-select: all; }
+.azure input { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 6px 8px; width: 100%; }
+.azure .row { margin-top: 2px; }
 .usingwin { font-size: 12px; color: var(--muted); text-align: center; margin: -6px 14px 12px; }
 
 /* mode switch */
@@ -199,7 +202,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     </div>
     <div class="banner" id="banner" role="alert" hidden>
       <div id="bannerText"></div>
-      <div class="acts"><button class="btn primary" type="button" id="winBtn" hidden>Use a listening window</button><button class="btn" type="button" id="retryBtn">Try again</button><button class="btn" type="button" id="webBtn">Open Bolo in browser</button></div>
+      <div class="acts"><button class="btn primary" type="button" id="winBtn" hidden>Use a listening window</button><button class="btn primary" type="button" id="linkBtn" hidden>Listen through my browser</button><button class="btn" type="button" id="azSetupBtn" hidden>Set up Azure speech</button><button class="btn" type="button" id="retryBtn">Try again</button><button class="btn" type="button" id="webBtn">Open Bolo in browser</button></div>
       <details class="diag"><summary>Details</summary><code id="diag"></code></details>
     </div>
     <div class="hearing" id="hearing" data-empty="What you're saying shows here first." aria-live="off"></div>
@@ -267,6 +270,17 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">(੧੨੩)</span></label>
       <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
       <label class="toggle"><input type="checkbox" id="autofix" /> Fix one-letter slips automatically while I speak</label>
+      <div class="field azure" id="azureBox">
+        <label for="azKey">Azure Speech (for the Word app)</label>
+        <p class="note">The Word app on a computer has no speech service of its own. Add a Microsoft Azure Speech key and Bolo listens directly here. Kept only on this computer.</p>
+        <input id="azKey" type="password" autocomplete="off" spellcheck="false" placeholder="Key" />
+        <input id="azRegion" autocomplete="off" spellcheck="false" placeholder="Region, e.g. canadacentral" />
+        <div class="row">
+          <button class="btn primary" type="button" id="azSave">Save &amp; test</button>
+          <button class="btn" type="button" id="azClear">Remove</button>
+          <span class="tally" id="azState"></span>
+        </div>
+      </div>
     </div>
   </details>
 
@@ -630,6 +644,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     blocked: 'The microphone is blocked for this panel. In Word in the browser: click the icon at the left of the address bar → Site settings → Microphone → Allow, then reload the page. The Word app installed on a computer often doesn’t let add-ins use the microphone — use Word in the browser, or open Bolo in the browser and paste.',
     unsupported: 'This copy of Word can’t do speech recognition inside add-ins. Open your document in Word in the browser (office.com, Chrome or Edge), or open Bolo in the browser and paste.',
     network: 'The speech service couldn’t be reached. Check your internet connection and try again.',
+    desktopNoService: 'The Word app has no speech-to-text service of its own. Bolo can listen through your browser instead: it opens a Bolo tab in Edge or Chrome and the words come straight into this document.',
     lang: 'Speech recognition doesn’t support this language here. Try Word in the browser with the latest Chrome.'
   };
 
@@ -642,7 +657,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
   function showBanner(msg, offerWeb = true) {
     $('bannerText').textContent = msg || '';
     $('webBtn').hidden = !offerWeb;
-    $('winBtn').hidden = true;
+    $('winBtn').hidden = true; $('azSetupBtn').hidden = true; $('linkBtn').hidden = true; $('retryBtn').hidden = false;
     $('banner').hidden = !msg;
     if (msg) writeDiag();
   }
@@ -687,6 +702,8 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       }
       wanted = false;
       const key = { 'not-allowed': 'blocked', 'service-not-allowed': 'unsupported', network: 'network', 'audio-capture': 'nomic', 'language-not-supported': 'lang' }[e.error];
+      const desktop = !onWebNow() && !heard && e.error === 'network';
+      if (desktop) { showBanner(HELP.desktopNoService, false); $('retryBtn').hidden = true; $('linkBtn').hidden = false; $('azSetupBtn').hidden = false; return; }
       showBanner(key ? HELP[key] : 'Listening stopped (' + e.error + '). Press Try again.', key !== 'nomic' && key !== 'network');
     };
     r.onend = () => {
@@ -706,7 +723,9 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
   }
 
   async function start() {
-    if (!SR || wanted) return;
+    if (wanted) return;
+    if (useLink()) { startViaLink(); return; }
+    if (!SR && !azureCfg()) return;
     wanted = true; codeIdx = 0; heard = false; netFails = 0;
     showBanner('');
     setStatus('Asking for the microphone…', 'If a box appears, choose Allow.');
@@ -721,15 +740,171 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       } else showBanner(HELP[m], m !== 'nomic');
       return;
     }
+    if (azureCfg()) {
+      try { await startAzure(); }
+      catch (err) { stopAzure(); stopUi(); showBanner('Azure speech couldn’t start: ' + ((err && err.message) || err) + '. Check the key and region in Settings.', false); $('azSetupBtn').hidden = false; }
+      return;
+    }
     try {
       rec = makeRec(); rec.start();
       t0 = Date.now(); clearInterval(tick);
       tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500);
     } catch { stopUi(); showBanner('Couldn’t start listening. Close and reopen the panel, then try again.'); }
   }
-  function stop() { wanted = false; try { rec && rec.stop(); } catch {} if (dialog) closeListenWindow(); else stopUi(); }
+  function stop() { wanted = false; try { rec && rec.stop(); } catch {} stopAzure(); linkSend({ t: 'stop' }); if (dialog) closeListenWindow(); else stopUi(); }
   // Once the listening window has worked, go straight to it (opening it right on the click avoids pop-up blocking).
-  const toggle = () => (wanted || dialog ? stop() : store.get('useWindow', false) && onWebNow() ? openListenWindow() : start());
+  const toggle = () => (wanted || dialog || az || linking ? stop() : store.get('useWindow', false) && onWebNow() && !azureCfg() ? openListenWindow() : start());
+
+  // ================= listening through the browser (for the Word app on Windows) =================
+  // The Word app's built-in browser has no speech service, so a Bolo tab in Edge/Chrome does the
+  // listening and sends the words here over a direct link (see bridge.js).
+  let linkDc = null, linking = null;
+  const onWindowsApp = () => { try { return Office.context.platform === Office.PlatformType.PC; } catch { return false; } };
+  const useLink = () => onWindowsApp() && !azureCfg();
+  function linkSend(m) { try { if (linkDc && linkDc.readyState === 'open') linkDc.send(JSON.stringify(m)); } catch {} }
+  function linkCfg() { return { t: 'cfg', codes: codes(), name: L().name, dir: L().dir }; }
+  function onLinkMessage(m) {
+    if (m.t === 'final') {
+      const text = autoFix(clean(bestAlternative(m.alts.map((t) => ({ transcript: t })))));
+      if (mode === 'live') insertIntoWord(text); else addToDraft(text);
+      hearing.textContent = '';
+    } else if (m.t === 'interim') hearing.textContent = m.text;
+    else if (m.t === 'state' && m.on) {
+      wanted = true;
+      $('state').classList.add('listening');
+      mic.setAttribute('aria-pressed', 'true'); mic.setAttribute('aria-label', 'Stop');
+      setStatus('Listening · ' + L().name, 'Through your browser tab. Press the square to stop.');
+      showBanner('');
+      if (!$('timer').textContent) { clearInterval(tick); t0 = Date.now(); tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500); }
+    } else if (m.t === 'state' && !m.on) { clearInterval(tick); tick = null; stopUi(); }
+    else if (m.t === 'error') {
+      clearInterval(tick); tick = null; stopUi();
+      const why = { 'not-allowed': 'The browser blocked the microphone. In the Bolo tab, click the icon at the left of the address bar and allow the microphone, then press the mic here again.',
+        network: 'The browser couldn’t reach its speech service. Open the Bolo tab in Microsoft Edge if it opened in another browser.',
+        unsupported: 'That browser can’t do speech recognition. Make Microsoft Edge or Google Chrome your default browser, then try again.' }[m.error];
+      showBanner(why || 'Listening stopped in the browser tab (' + m.error + ').', false);
+    }
+  }
+  async function startViaLink() {
+    showBanner('');
+    if (linkDc && linkDc.readyState === 'open') {   // already linked: just start
+      wanted = true; setStatus('Starting…', 'Through your browser tab.');
+      linkSend(linkCfg()); linkSend({ t: 'start' }); return;
+    }
+    if (linking) return;
+    wanted = true;
+    setStatus('Opening Bolo in your browser…', 'Allow the microphone there if it asks. Keep that tab open.');
+    try {
+      const pageUrl = new URL('listen.html', location.href).href;
+      linking = await BoloBridge.host({
+        pageUrl,
+        onOpen: (dc) => { linkDc = dc; linking = null; linkSend(linkCfg()); if (wanted) linkSend({ t: 'start' }); },
+        onMessage: onLinkMessage,
+        onClose: () => { linkDc = null; linking = null; if (wanted || $('state').classList.contains('listening')) { clearInterval(tick); tick = null; stopUi(); showBanner('The browser tab was closed. Press the mic to open it again.', false); } }
+      });
+      try { Office.context.ui.openBrowserWindow(linking.url); } catch { window.open(linking.url, '_blank'); }
+      linking.answered.catch((err) => {
+        linking = null; stopUi();
+        showBanner('The browser tab didn’t link up (' + ((err && err.message) || err) + '). Press the mic to try again; if a Bolo tab opened, close it first.', false);
+      });
+    } catch (err) {
+      linking = null; stopUi();
+      showBanner('Couldn’t start the link to your browser (' + ((err && err.message) || err) + '). Check your internet connection and try again.', false);
+    }
+  }
+
+  // ================= Azure Speech (works inside the Word app, which has no speech service) =================
+  const AZ_SDK = 'https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js';
+  const azureCfg = () => { const c = store.get('azure', null); return c && c.key && c.region ? c : null; };
+  const azLang = () => (lang === 'en' ? enVariant.value : { pa: 'pa-IN', hi: 'hi-IN', ur: 'ur-IN' }[lang]);
+  let az = null;
+  function loadAzure() {
+    if (window.SpeechSDK) return Promise.resolve();
+    if (loadAzure.p) return loadAzure.p;
+    loadAzure.p = new Promise((ok, bad) => {
+      const s = document.createElement('script'); s.src = AZ_SDK;
+      s.onload = () => (window.SpeechSDK ? ok() : bad(new Error('speech library didn’t load')));
+      s.onerror = () => { loadAzure.p = null; bad(new Error('couldn’t download the speech library')); };
+      document.head.appendChild(s);
+    });
+    return loadAzure.p;
+  }
+  function makeAzure(cfgIn) {
+    const S = window.SpeechSDK;
+    const cfg = S.SpeechConfig.fromSubscription(cfgIn.key, cfgIn.region.trim().toLowerCase().replace(/\s+/g, ''));
+    cfg.speechRecognitionLanguage = azLang();
+    cfg.outputFormat = S.OutputFormat.Detailed;
+    return new S.SpeechRecognizer(cfg, S.AudioConfig.fromDefaultMicrophoneInput());
+  }
+  async function startAzure() {
+    const c = azureCfg();
+    setStatus('Connecting to Azure…', '');
+    await loadAzure();
+    const S = window.SpeechSDK;
+    const r = makeAzure(c);
+    r.recognizing = (s, e) => { hearing.textContent = e.result.text || ''; };
+    r.recognized = (s, e) => {
+      if (e.result.reason !== S.ResultReason.RecognizedSpeech || !e.result.text) return;
+      heard = true; hearing.textContent = '';
+      let alts = [e.result.text];
+      try { const j = JSON.parse(e.result.json); if (j.NBest && j.NBest.length) alts = j.NBest.map((n) => n.Display || n.Lexical).filter(Boolean); } catch {}
+      const text = autoFix(clean(bestAlternative(alts.map((t) => ({ transcript: t })))));
+      if (mode === 'live') insertIntoWord(text); else addToDraft(text);
+    };
+    r.canceled = (s, e) => {
+      if (e.reason !== S.CancellationReason.Error) return;
+      const why = e.errorCode === S.CancellationErrorCode.AuthenticationFailure ? 'the key or region is wrong'
+        : e.errorCode === S.CancellationErrorCode.ConnectionFailure ? 'it couldn’t connect (check your internet)'
+        : e.errorCode === S.CancellationErrorCode.TooManyRequests ? 'the free allowance or rate limit was reached'
+        : (e.errorDetails || 'an error');
+      stopAzure(); stopUi();
+      showBanner('Azure speech stopped: ' + why + '.', false); $('azSetupBtn').hidden = false;
+    };
+    az = r;
+    await new Promise((ok, bad) => r.startContinuousRecognitionAsync(ok, (err) => bad(new Error(err))));
+    wanted = true;
+    $('state').classList.add('listening');
+    mic.setAttribute('aria-pressed', 'true'); mic.setAttribute('aria-label', 'Stop');
+    setStatus('Listening · ' + L().name, (mode === 'live' ? 'Words go in at your cursor.' : 'Words collect below.') + ' Using Azure Speech.');
+    showBanner('');
+    t0 = Date.now(); clearInterval(tick);
+    tick = setInterval(() => ($('timer').textContent = fmt(Date.now() - t0)), 500);
+  }
+  function stopAzure() {
+    if (!az) return;
+    const r = az; az = null;
+    try { r.stopContinuousRecognitionAsync(() => r.close(), () => r.close()); } catch { try { r.close(); } catch {} }
+  }
+
+  // Settings: save & test the key with a quick connection check.
+  function showAzState(t) { $('azState').textContent = t; }
+  function fillAzure() { const c = store.get('azure', null) || {}; $('azKey').value = c.key || ''; $('azRegion').value = c.region || ''; showAzState(azureCfg() ? 'On' : ''); }
+  $('azSave').addEventListener('click', async () => {
+    const key = $('azKey').value.trim(), region = $('azRegion').value.trim();
+    if (!key || !region) return showAzState('Enter both');
+    showAzState('Testing…');
+    try {
+      await loadAzure();
+      const S = window.SpeechSDK;
+      const cfg = S.SpeechConfig.fromSubscription(key, region.toLowerCase().replace(/\s+/g, ''));
+      cfg.speechRecognitionLanguage = azLang();
+      // Recognising a moment of silence is enough to prove the key and region work.
+      const silent = S.AudioConfig.fromStreamInput(S.AudioInputStream.createPushStream());
+      const r = new S.SpeechRecognizer(cfg, silent);
+      const res = await new Promise((ok) => {
+        const done = (v) => { try { r.close(); } catch {} ok(v); };
+        r.canceled = (s, e) => done(e.reason === S.CancellationReason.Error ? e : null);
+        setTimeout(() => done(null), 6000);
+        r.startContinuousRecognitionAsync(() => setTimeout(() => done(null), 2500), (err) => done({ errorDetails: String(err) }));
+      });
+      if (res && res.errorCode === S.CancellationErrorCode.AuthenticationFailure) return showAzState('Key or region is wrong');
+      if (res) return showAzState('Couldn’t connect: ' + (res.errorDetails || 'error').slice(0, 60));
+      store.set('azure', { key, region }); showAzState('Saved ✓ On');
+      toast('Azure speech is on. Press the mic to speak.');
+    } catch (err) { showAzState('Error: ' + ((err && err.message) || err)); }
+  });
+  $('azClear').addEventListener('click', () => { store.set('azure', null); fillAzure(); toast('Azure speech removed.'); });
+  $('azSetupBtn').addEventListener('click', () => { $('settings').open = true; $('azKey').focus(); $('azureBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
 
   // ================= vocabulary (Mahan Kosh + my words) =================
   // Headwords and frequent words from Bhai Kahan Singh Nabha's Mahan Kosh, most common first
@@ -991,6 +1166,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
   mic.addEventListener('click', toggle);
   $('retryBtn').addEventListener('click', () => { showBanner(''); store.set('useWindow', false); start(); });
   $('winBtn').addEventListener('click', openListenWindow);
+  $('linkBtn').addEventListener('click', () => { showBanner(''); startViaLink(); });
   const WEB_URL = new URL('index.html', location.href).href;
   $('webBtn').addEventListener('click', () => { try { Office.context.ui.openBrowserWindow(WEB_URL); } catch { window.open(WEB_URL, '_blank'); } });
   $('undoBtn').addEventListener('click', undoLast);
@@ -1033,7 +1209,8 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
       setStatus('Open this inside Word', 'This panel works in Microsoft Word.');
       return;
     }
-    if (!SR) {
+    fillAzure();
+    if (!SR && !azureCfg() && !onWindowsApp()) {
       setStatus('Speech not available here');
       showBanner(HELP.unsupported);
       $('retryBtn').hidden = true;
