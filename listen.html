@@ -29,6 +29,21 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
 .heard:empty::before { content: "What you say shows here, then goes into Word."; font-family: "Segoe UI", system-ui, sans-serif; font-size: 13px; }
 .warn { width: 100%; padding: 10px 12px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink); font-size: 13px; text-align: left; }
 [hidden] { display: none !important; }
+
+/* Small window: one slim row — stop button, status, then the words being heard. */
+@media (max-height: 300px), (max-width: 360px) {
+  body { padding: 10px 16px; place-items: center stretch; }
+  main { max-width: none; grid-template-columns: auto 1fr; align-items: center; align-content: center; justify-items: stretch; text-align: left; gap: 4px 12px; }
+  .status { justify-self: start; }
+  .mark, .hint { display: none; }
+  .orb { width: 40px; height: 40px; grid-row: span 2; }
+  .orb svg { width: 18px; height: 18px; }
+  .on .orb::after { inset: -4px; }
+  .status { font-size: 14px; }
+  .heard { min-height: 0; padding: 4px 8px; font-size: 15px; grid-column: 2; }
+  .heard:empty::before { content: "Speak — words go into Word."; font-size: 12px; }
+  .warn { grid-column: 1 / -1; font-size: 12px; padding: 6px 8px; }
+}
 </style>
 </head>
 <body>
@@ -65,6 +80,7 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
       document.body.classList.add('on');
       $('status').textContent = 'Listening' + (name ? ' · ' + name : '');
       warn(''); send({ t: 'state', on: true });
+      backToWord();
     };
     r.onresult = (e) => {
       let interim = '';
@@ -110,6 +126,33 @@ main { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: c
 
   $('orb').addEventListener('click', () => { wanted = false; try { rec && rec.stop(); } catch {} send({ t: 'stop' }); });
 
+  // ---- where the window sits: top-right the first time, then wherever you last left it ----
+  const POS = 'bolo.listen.pos';
+  function place() {
+    try {
+      let saved = null;
+      try { saved = JSON.parse(localStorage.getItem(POS) || 'null'); } catch {}
+      const sw = screen.availWidth, sh = screen.availHeight, sl = screen.availLeft || 0, st = screen.availTop || 0;
+      let x = sl + sw - window.outerWidth - 12, y = st + 12;
+      if (saved && saved.x >= sl - 50 && saved.x < sl + sw - 50 && saved.y >= st - 50 && saved.y < st + sh - 50) { x = saved.x; y = saved.y; }
+      window.moveTo(x, y);
+    } catch {}
+  }
+  function remember() {
+    try { localStorage.setItem(POS, JSON.stringify({ x: window.screenX, y: window.screenY })); } catch {}
+  }
+  let lastX = window.screenX, lastY = window.screenY;
+  setInterval(() => { if (window.screenX !== lastX || window.screenY !== lastY) { lastX = window.screenX; lastY = window.screenY; remember(); } }, 1000);
+  window.addEventListener('pagehide', remember);
+
+  // Once listening has started, hand focus back to Word so you can keep working in your document.
+  let handedBack = false;
+  function backToWord() {
+    if (handedBack) return; handedBack = true;
+    setTimeout(() => { try { window.opener && window.opener.focus(); } catch {} try { window.blur(); } catch {} }, 600);
+  }
+
+  place();
   Office.onReady(() => {
     ready = true;
     begin();

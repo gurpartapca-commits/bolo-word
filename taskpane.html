@@ -592,7 +592,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     u.searchParams.set('name', L().name);
     u.searchParams.set('dir', L().dir);
     setStatus('Opening the listening window…', 'If Word asks, choose Allow.');
-    Office.context.ui.displayDialogAsync(u.href, { height: 38, width: 28, promptBeforeOpen: false }, (res) => {
+    Office.context.ui.displayDialogAsync(u.href, { height: 22, width: 22, promptBeforeOpen: false }, (res) => {
       if (res.status !== Office.AsyncResultStatus.Succeeded) {
         diag.dialog = 'fail:' + (res.error && res.error.code);
         stopUi();
