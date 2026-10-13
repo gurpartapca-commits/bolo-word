@@ -528,13 +528,22 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
 
   // ================= microphone permission =================
   async function ensureMic() {
-    const dp = window.Office && Office.context && Office.context.devicePermission;
-    if (dp && dp.requestPermissionsAsync && Office.DevicePermissionType) {
+    // Word on the web: Word must grant the panel the microphone. It shows its own Allow box.
+    // requestPermissions() resolves true on a first-time grant (the panel must then reload),
+    // false when it was already granted, and rejects when the user says no.
+    const dp = (window.Office && Office.devicePermission) || (window.Office && Office.context && Office.context.devicePermission);
+    const onWeb = window.Office && Office.context && Office.context.platform === Office.PlatformType.OfficeOnline;
+    if (onWeb && dp && dp.requestPermissions && Office.DevicePermissionType) {
       try {
-        const ok = await dp.requestPermissionsAsync([Office.DevicePermissionType.microphone]);
-        if (ok === false) return 'denied';
+        const firstGrant = await dp.requestPermissions([Office.DevicePermissionType.microphone]);
+        if (firstGrant) {
+          store.set('resumeMic', Date.now());
+          setStatus('Microphone allowed', 'Reloading the panel…');
+          setTimeout(() => location.reload(), 400);
+          return 'reloading';
+        }
       } catch (e) {
-        if (/den|declin|not allowed/i.test((e && e.message) || '')) return 'denied';
+        return 'denied';
       }
     }
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -548,7 +557,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     return 'ok';
   }
   const HELP = {
-    denied: 'The microphone wasn’t allowed. Press Try again and choose “Allow” in the box that appears.',
+    denied: 'The microphone wasn’t allowed. Press Try again and choose “Allow” in the box Word shows.',
     nomic: 'No microphone was found. Plug one in or check your sound settings, then try again.',
     blocked: 'The microphone is blocked for this panel. In Word in the browser: click the icon at the left of the address bar → Site settings → Microphone → Allow, then reload the page. The Word app installed on a computer often doesn’t let add-ins use the microphone — use Word in the browser, or open Bolo in the browser and paste.',
     unsupported: 'This copy of Word can’t do speech recognition inside add-ins. Open your document in Word in the browser (office.com, Chrome or Edge), or open Bolo in the browser and paste.',
@@ -627,6 +636,7 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     showBanner('');
     setStatus('Asking for the microphone…', 'If a box appears, choose Allow.');
     const m = await ensureMic();
+    if (m === 'reloading') return;
     if (!wanted) return;
     if (m !== 'ok') { stopUi(); showBanner(HELP[m], m !== 'nomic'); return; }
     try {
@@ -947,6 +957,9 @@ kbd { font: 11px ui-monospace, Consolas, monospace; border: 1px solid var(--line
     }
     mic.disabled = false;
     setStatus('Ready', idleHint());
+    // Just reloaded after allowing the microphone: carry on listening.
+    const resume = store.get('resumeMic', 0);
+    if (resume && Date.now() - resume < 30000) { store.set('resumeMic', 0); start(); }
   });
 })();
 </script>
