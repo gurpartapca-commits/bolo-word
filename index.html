@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bolo-version="2.0">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -243,6 +243,64 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 .toast button { border: 0; background: transparent; color: var(--marigold); font-weight: 700; }
 
+/* ---------- v2: slim header, tools, dialogs ---------- */
+header.top { padding: 12px 0 14px; }
+.brand .seal { width: 34px; height: 34px; font-size: 19px; border-radius: 10px; }
+.ver { font: 600 11px/1 var(--font-ui); color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 7px; margin-left: 2px; }
+.top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.chip-btn svg { width: 15px; height: 15px; }
+.chip-btn.icon { width: 34px; height: 34px; padding: 0; justify-content: center; font-weight: 700; }
+.updatenote { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--thread-soft); color: var(--ink); font-size: 14.5px; }
+.banner.show { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.banner .btn { min-height: 30px; padding: 5px 10px; font-size: 13.5px; }
+
+.marksbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 8px 12px 8px 18px; border-bottom: 1px solid var(--line); }
+.marksbar .lbl { font-size: 12px; color: var(--muted); margin-right: 2px; }
+.marks { display: flex; gap: 4px; flex-wrap: wrap; }
+.marks .btn { min-width: 36px; min-height: 32px; justify-content: center; padding: 4px 8px; font-family: "Noto Sans Gurmukhi", "Noto Sans Devanagari", "Noto Naskh Arabic", var(--font-ui); font-size: 17px; }
+.marksbar .grow { flex: 1; }
+.marksbar #undoBtn { min-height: 32px; font-size: 13.5px; }
+
+.miccard .hearing {
+  width: 100%; min-height: 48px; margin: 0; padding: 8px 12px; border: 0; border-radius: 10px; background: var(--soft);
+  font-size: 17px; text-align: start; justify-content: flex-start;
+}
+.miccard .hearing:empty::before { font-size: 13px; }
+
+dialog.dlg {
+  border: 1px solid var(--line); border-radius: 16px; padding: 0; background: var(--card); color: var(--ink);
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px); box-shadow: var(--shadow);
+}
+dialog.dlg::backdrop { background: rgba(10, 12, 30, .45); }
+.dlg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--card); z-index: 1; }
+.dlg-head h2 { margin: 0; font-size: 17px; }
+.dlg-body { padding: 14px 16px 18px; display: grid; gap: 12px; }
+dialog .help { margin-top: 0; grid-template-columns: minmax(0, 1fr); }
+dialog .help > div { padding: 14px 16px 12px; }
+
+.histsearch { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--soft); }
+.histlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.histlist li { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; background: var(--card); }
+.histlist li.current { border-color: var(--thread); }
+.histlist .meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; font-size: 12.5px; color: var(--muted); }
+.histlist .meta b { color: var(--ink); font-size: 13px; }
+.histlist .prev { font-family: "Noto Sans Gurmukhi", "Noto Sans Devanagari", "Noto Naskh Arabic", var(--font-ui); font-size: 16px; line-height: 1.6; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.histlist .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.histlist .acts .btn { min-height: 30px; padding: 5px 10px; font-size: 13px; }
+.muted-note { color: var(--muted); font-size: 13px; margin: 0; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.steps li { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+.steps .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: var(--soft); color: var(--muted); }
+.steps li.ok .ic { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+.steps li.bad .ic { background: var(--thread-soft); color: var(--thread); }
+.steps li.warn .ic { background: var(--marigold-soft); color: var(--warn-ink); }
+.steps li.run .ic { background: var(--marigold-soft); color: var(--warn-ink); }
+.steps b { display: block; font-size: 14.5px; }
+.steps .msg { color: var(--muted); font-size: 13.5px; }
+.meter { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin-top: 6px; }
+.meter i { display: block; height: 100%; width: 0; background: var(--green); transition: width .08s; }
+
 /* ---------- smaller screens ---------- */
 @media (max-width: 900px) {
   .desk { grid-template-columns: minmax(0, 1fr); grid-template-areas: "mic" "sheet" "set" "vocab"; }
@@ -256,9 +314,14 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   .miccard .state .s1 { justify-content: flex-start; }
   .miccard .mic { width: 76px; height: 76px; grid-row: span 1; }
   .miccard .langpills { grid-column: 1 / -1; }
+  .miccard .hearing { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
   .intro { padding: 22px 0 18px; }
+  .top-actions .chip-btn .t, #themeLabel, .brand .l small, .ver { display: none; }
+  .top-actions { flex-wrap: nowrap; gap: 4px; }
+  .top-actions .chip-btn { padding: 6px 9px; min-height: 34px; }
+  .marksbar { padding: 8px 10px; }
   #transcript { font-size: 20px; min-height: 300px; padding: 16px 16px 12px; }
   .hearing { padding: 10px 16px 12px; }
   .paper-head { padding: 10px 10px 10px 14px; }
@@ -279,16 +342,22 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="seal" lang="pa" aria-hidden="true">ਬੋ</span><span class="l">Bolo Punjabi <small lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ</small></span></div>
-    <button class="chip-btn" id="themeBtn" type="button" aria-label="Switch light or dark">◐ <span id="themeLabel">Theme</span></button>
+    <div class="brand"><span class="seal" lang="pa" aria-hidden="true">ਬੋ</span><span class="l">Bolo Punjabi <small lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ</small></span><span class="ver" id="verTag" title="Version">v2.0</span></div>
+    <div class="top-actions">
+      <button class="chip-btn" id="historyBtn" type="button" title="Your earlier texts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg><span class="t">History</span>
+      </button>
+      <button class="chip-btn" id="testBtn" type="button" title="Check the microphone and speech service">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span class="t">Test setup</span>
+      </button>
+      <button class="chip-btn" id="themeBtn" type="button" aria-label="Switch light or dark">◐ <span id="themeLabel">Theme</span></button>
+      <button class="chip-btn icon" id="helpBtn" type="button" aria-label="Help" title="Help">?</button>
+    </div>
   </header>
 
-  <section class="intro">
-    <h1 lang="pa">ਬੋਲੋ ਪੰਜਾਬੀ, <em>ਲਿਖੋ ਗੁਰਮੁਖੀ</em></h1>
-    <p>Speak Punjabi and watch it appear as editable Gurmukhi text. Also works for Hindi, Urdu and English. Free, no sign-up, nothing to install.</p>
-    <div class="phulkari" aria-hidden="true"></div>
-  </section>
+  <h1 class="sr">Bolo Punjabi: speak Punjabi, get Gurmukhi text</h1>
 
+  <div class="updatenote" id="updateNote" hidden><span>A new version of Bolo is ready.</span><button class="btn primary" type="button" id="updateBtn">Reload now</button></div>
   <div class="banner" id="banner" role="alert"></div>
 
   <main class="desk" aria-label="Speech to text converter">
@@ -314,10 +383,17 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
           </button>
         </div>
       </div>
+      <div class="marksbar">
+        <span class="lbl">Add</span>
+        <div class="marks" id="marks" role="group" aria-label="Punctuation"></div>
+        <span class="grow"></span>
+        <button class="btn" id="undoBtn" type="button" disabled title="Remove only the last thing it heard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>Undo last phrase
+        </button>
+      </div>
       <div class="sheet">
         <p class="example-note" id="exampleNote" hidden>This is example text. <button type="button" id="clearExample">Clear it and start</button></p>
         <textarea id="transcript" spellcheck="false" aria-label="Transcript" placeholder="ਇੱਥੇ ਤੁਹਾਡੀ ਗੱਲ ਲਿਖੀ ਜਾਵੇਗੀ…"></textarea>
-        <div class="hearing" id="hearing" data-empty="Words you're saying appear here first, then move into the text." aria-live="off"></div>
       </div>
     </section>
 
@@ -331,6 +407,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
           <div class="s1"><span class="dot"></span><span id="status">Ready to listen</span><span class="timer" id="timer">00:00</span></div>
           <div class="s2" id="hint">Press the mic (or <kbd>Ctrl</kbd>+<kbd>M</kbd>) and start speaking. Text goes where your cursor is.</div>
         </div>
+        <div class="hearing" id="hearing" data-empty="What you're saying shows here first." aria-live="off"></div>
         <div class="langpills" role="group" aria-label="Language" id="langPills">
           <button type="button" data-lang="pa" lang="pa">ਪੰਜਾਬੀ<span class="s">Punjabi</span></button>
           <button type="button" data-lang="hi" lang="hi">हिन्दी<span class="s">Hindi</span></button>
@@ -343,7 +420,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       <section class="card setcard" aria-label="Settings">
         <div class="cardhead"><h2>Settings</h2></div>
         <div class="setgrid">
-          <div class="field">
+          <div class="field" hidden>
             <label for="lang">Language</label>
             <select id="lang">
               <option value="pa">ਪੰਜਾਬੀ · Punjabi (Gurmukhi)</option>
@@ -363,6 +440,11 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
           </div>
           <label class="toggle" id="numeralsWrap"><input type="checkbox" id="numerals" /> Gurmukhi numerals <span lang="pa">੧੨੩</span></label>
           <label class="toggle"><input type="checkbox" id="spoken" checked /> Spoken punctuation</label>
+          <div class="field" id="enAccentWrap" hidden>
+            <label for="enAccent">English accent</label>
+            <select id="enAccent"><option value="en-IN">India</option><option value="en-US">US</option></select>
+          </div>
+          <label class="toggle" id="fillersWrap" hidden><input type="checkbox" id="fillers" checked /> Remove filler words (um, uh)</label>
         </div>
       </section>
 
@@ -380,6 +462,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
             <button class="btn" id="myWordsBtn" type="button" aria-expanded="false" aria-controls="myPanel">My words <span class="pill" id="myCount">0</span></button>
           </div>
           <label class="toggle small"><input type="checkbox" id="autofix" /> Fix one-letter slips automatically while I speak</label>
+          <label class="toggle small"><input type="checkbox" id="autolearn" /> Learn new words from text I copy or download</label>
 
           <div class="panel" id="checkPanel" hidden>
             <p class="panel-sum" id="checkSum"></p>
@@ -404,6 +487,9 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     </aside>
   </main>
 
+  <dialog class="dlg" id="helpDlg" aria-labelledby="helpTitle">
+    <div class="dlg-head"><h2 id="helpTitle">Help</h2><button class="chip-btn" type="button" data-close>Close</button></div>
+    <div class="dlg-body">
   <section class="help">
     <div>
       <h2><span class="num">1</span>How it works</h2>
@@ -426,22 +512,45 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
         <li>Quiet room, steady pace, clear endings.</li>
         <li>Check names, places, numbers and English words afterwards.</li>
         <li>The result is a first draft. Read it through before you share it.</li>
+        <li>If listening stops working, press <b>Test setup</b> at the top.</li>
       </ul>
     </div>
   </section>
+      <p class="muted-note">Shortcuts: <kbd>Ctrl</kbd>+<kbd>M</kbd> start/stop · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copy all · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> undo last phrase. Your texts are kept only in this browser. Version 2.0.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dlg" id="histDlg" aria-labelledby="histTitle">
+    <div class="dlg-head"><h2 id="histTitle">History</h2><button class="chip-btn" type="button" data-close>Close</button></div>
+    <div class="dlg-body">
+      <input class="histsearch" id="histSearch" type="search" placeholder="Search your texts…" aria-label="Search your texts" />
+      <ul class="histlist" id="histList"></ul>
+      <p class="muted-note">Every text is saved here automatically, including ones you clear. The last 100 are kept, only in this browser.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dlg" id="testDlg" aria-labelledby="testTitle">
+    <div class="dlg-head"><h2 id="testTitle">Test my setup</h2><button class="chip-btn" type="button" data-close>Close</button></div>
+    <div class="dlg-body">
+      <p class="muted-note">Checks each part in turn. When asked, say a short sentence in the selected language.</p>
+      <ol class="steps" id="testSteps"></ol>
+      <div><button class="btn primary" type="button" id="testRun">Start the test</button></div>
+    </div>
+  </dialog>
 
   <footer>
-    <div class="phulkari" aria-hidden="true"></div>
-    <div>Bolo Punjabi · Your text is saved only in this browser so you don't lose it. Shortcuts: <kbd>Ctrl</kbd>+<kbd>M</kbd> start/stop · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copy all.</div>
+    <div>Bolo Punjabi v2.0 · Your texts are saved only in this browser.</div>
   </footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAction" hidden></button></div>
 <div id="printOut"></div>
 
-<script src="mahan-kosh-words.js"></script>
+<script src="mahan-kosh-words.js?v=2.0"></script>
+<script src="punjabi-common-words.js?v=2.0"></script>
 <script>
 (() => {
+  const VERSION = document.documentElement.dataset.boloVersion || '';
   // ---------------- languages ----------------
   const LANGS = {
     pa: {
@@ -495,7 +604,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   // ---------------- elements ----------------
   const $ = (id) => document.getElementById(id);
   const ta = $('transcript'), hearing = $('hearing'), mic = $('mic'), langSel = $('lang'), fontSel = $('font');
-  const size = $('size'), numerals = $('numerals'), spoken = $('spoken');
+  const size = $('size'), numerals = $('numerals'), spoken = $('spoken'), fillers = $('fillers'), enAccent = $('enAccent');
 
   // ---------------- saved prefs + draft (this browser only) ----------------
   const store = {
@@ -509,6 +618,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   size.value = store.get('size', 22);
   numerals.checked = store.get('numerals', false);
   spoken.checked = store.get('spoken', true);
+  fillers.checked = store.get('fillers', true);
 
   function L() { return LANGS[lang]; }
 
@@ -534,7 +644,25 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     ta.lang = { pa: 'pa', hi: 'hi', ur: 'ur' }[lang] || 'en';
     ta.placeholder = L().placeholder;
     $('numeralsWrap').hidden = lang !== 'pa';
-    renderCmds();
+    $('enAccentWrap').hidden = $('fillersWrap').hidden = !lang.startsWith('en');
+    enAccent.value = lang.startsWith('en') ? lang : store.get('enVariant', 'en-IN');
+    renderCmds(); renderMarks();
+  }
+
+  // Punctuation buttons above the text: add the mark at the cursor.
+  const MARKS = { pa: ['।', ',', '?', '!'], hi: ['।', ',', '?', '!'], ur: ['۔', '،', '؟', '!'] };
+  function renderMarks() {
+    const box = $('marks'); box.innerHTML = '';
+    for (const m of [...(MARKS[lang] || ['.', ',', '?', '!']), '\n']) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn';
+      b.textContent = m === '\n' ? '↵' : m;
+      b.title = m === '\n' ? 'New line' : 'Add ' + m;
+      b.setAttribute('aria-label', b.title);
+      b.addEventListener('mousedown', (e) => e.preventDefault()); // keep the cursor in the text
+      b.addEventListener('click', () => insertText(m));
+      box.appendChild(b);
+    }
   }
 
   function renderCmds() {
@@ -564,12 +692,15 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       // tidy spaces around punctuation and line breaks
       s = s.replace(/[ \t]+([।,?!.۔،؟])/g, '$1').replace(/[ \t]*\n[ \t]*/g, '\n');
     }
+    if (lang.startsWith('en') && fillers.checked) {
+      s = s.replace(/(^|\s)(?:um+|uh+|uhm+|erm+|hmm+|ah+)[,.]?(?=\s|$)/gi, '$1').replace(/[ \t]{2,}/g, ' ').trim();
+    }
     if (lang === 'pa' && numerals.checked) s = s.replace(/[0-9]/g, (d) => GUR_DIGITS[+d]);
     return s;
   }
 
   // Put recognised text where the cursor is, with sensible spacing.
-  function insertText(chunk) {
+  function insertText(chunk, fromSpeech) {
     if (!chunk) return;
     if (!$('exampleNote').hidden) clearExample();
     // where you last put the cursor yourself; otherwise the end of the text
@@ -587,31 +718,61 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     const pos = before.length + piece.length;
     ta.setSelectionRange(pos, pos);
     if (focused || userCaret) userCaret = [pos, pos];
+    if (fromSpeech) {
+      undoStack.push({ at: before.length, piece });
+      if (undoStack.length > 50) undoStack.shift();
+      spokenWords += wordCount(piece);
+    }
     onTextChange();
   }
+
+  // ---- undo only the last thing it heard (your own typing is left alone) ----
+  let undoStack = [];
+  function undoLast() {
+    const last = undoStack.pop();
+    if (!last) return;
+    let at = ta.value.slice(last.at, last.at + last.piece.length) === last.piece ? last.at : ta.value.lastIndexOf(last.piece);
+    if (at < 0) { toast('That text has been changed since, so it can’t be undone here'); undoStack = []; onTextChange(); return; }
+    ta.value = ta.value.slice(0, at) + ta.value.slice(at + last.piece.length);
+    ta.setSelectionRange(at, at); if (userCaret) userCaret = [at, at];
+    spokenWords = Math.max(0, spokenWords - wordCount(last.piece));
+    onTextChange();
+  }
+  $('undoBtn').addEventListener('click', undoLast);
 
   let userCaret = null;
   const rememberCaret = () => { userCaret = [ta.selectionStart, ta.selectionEnd]; };
   ['click', 'keyup', 'select'].forEach((ev) => ta.addEventListener(ev, rememberCaret));
 
+  const wordCount = (t) => { t = t.trim(); return t ? t.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length : 0; };
+  let spokenWords = 0, spokenMs = 0;
   function counts() {
-    const t = ta.value.trim();
-    const words = t ? t.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length : 0;
-    $('count').textContent = `${words} word${words === 1 ? '' : 's'} · ${ta.value.length} characters`;
+    const words = wordCount(ta.value);
+    const mins = (spokenMs + (wanted && started ? Date.now() - started : 0)) / 60000;
+    const pace = spokenWords >= 10 && mins >= 0.25 ? ` · ${Math.round(spokenWords / mins)} words/min spoken` : '';
+    $('count').textContent = `${words} word${words === 1 ? '' : 's'} · ${ta.value.length} characters${pace}`;
+    $('undoBtn').disabled = !undoStack.length;
   }
 
   let saveT;
   function onTextChange() {
     counts();
     clearTimeout(saveT);
-    saveT = setTimeout(() => { if ($('exampleNote').hidden) store.set('draft', ta.value); }, 300);
+    saveT = setTimeout(() => { if ($('exampleNote').hidden) { store.set('draft', ta.value); saveHistory(); } }, 300);
   }
 
   // ---------------- speech recognition ----------------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null, wanted = false, codeIdx = 0, started = 0, tick = null, noPhrases = false, heard = false, netFails = 0;
 
-  function banner(msg) { const b = $('banner'); b.textContent = msg; b.classList.toggle('show', !!msg); }
+  function banner(msg, offerTest) {
+    const b = $('banner'); b.textContent = '';
+    if (msg) {
+      const t = document.createElement('span'); t.textContent = msg; b.appendChild(t);
+      if (offerTest) { const k = document.createElement('button'); k.type = 'button'; k.className = 'btn'; k.textContent = 'Test my setup'; k.addEventListener('click', openTest); b.appendChild(k); }
+    }
+    b.classList.toggle('show', !!msg);
+  }
   function setStatus(s, hint) { $('status').textContent = s; if (hint !== undefined) $('hint').textContent = hint; }
 
   if (!SR) {
@@ -653,7 +814,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];
         heard = true; netFails = 0;
-        if (res.isFinal) insertText(autoFix(processChunk(bestAlternative(res))));
+        if (res.isFinal) insertText(autoFix(processChunk(bestAlternative(res))), true);
         else interim += res[0].transcript;
       }
       hearing.textContent = interim;
@@ -671,13 +832,13 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
       }
       wanted = false;
       const msgs = {
-        'not-allowed': 'Microphone access is blocked. Click the lock or camera icon in the address bar, allow the microphone for this site, then press the mic again.',
+        'not-allowed': 'The microphone is blocked for this page. Click the icon at the left of the address bar, set Microphone to Allow, then press the mic again.',
         'service-not-allowed': 'Your browser has speech recognition turned off for this page. Use Chrome or Edge, and open the page over https:// or as a local file.',
         'audio-capture': 'No microphone was found. Plug one in or check your sound settings, then try again.',
-        network: 'The speech service couldn’t be reached. Check your internet connection and try again.',
+        network: 'Lost the connection to the speech service several times in a row. Press the mic to carry on. If it keeps happening: use Microsoft Edge (Chrome’s speech service doesn’t work on every computer), check the internet, or run the test.',
         'language-not-supported': 'Your browser doesn’t support this language for speech recognition. Try the latest Chrome.'
       };
-      banner(msgs[e.error] || 'Speech recognition stopped (' + e.error + '). Press the mic to try again.');
+      banner(msgs[e.error] || 'Listening stopped (' + e.error + '). Press the mic to try again.', e.error !== 'audio-capture');
     };
     r.onend = () => {
       hearing.textContent = '';
@@ -689,6 +850,8 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   }
 
   function stopUi() {
+    if (started) spokenMs += Date.now() - started;
+    started = 0;
     wanted = false;
     $('state').classList.remove('listening');
     mic.setAttribute('aria-pressed', 'false');
@@ -696,10 +859,11 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     clearInterval(tick);
     startTimer.carry = 0;
     setStatus('Ready to listen', 'Press the mic (or Ctrl+M) and start speaking. Text goes where your cursor is.');
+    counts();
   }
 
   function start() {
-    if (!SR || wanted) return;
+    if (!SR || wanted || testing) return;
     wanted = true; codeIdx = 0; heard = false; netFails = 0;
     try { rec = makeRec(); rec.start(); startTimer(); }
     catch (e) { wanted = false; banner('Couldn’t start the microphone. Reload the page and try again.'); }
@@ -714,6 +878,9 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   // ---------------- actions ----------------
   function toast(msg, actionLabel, action) {
     const t = $('toast'), b = $('toastAction');
+    // Show it above any open window (History, Help, Test), otherwise it would sit behind it.
+    const dlg = document.querySelector('dialog[open]');
+    (dlg || document.body).appendChild(t);
     $('toastText').textContent = msg;
     b.hidden = !actionLabel;
     b.textContent = actionLabel || '';
@@ -725,6 +892,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
 
   async function copyAll() {
     if (!ta.value.trim()) return toast('Nothing to copy yet');
+    learnFromExport();
     try { await navigator.clipboard.writeText(ta.value); toast('Copied ✓'); }
     catch { ta.focus(); ta.select(); toast('Press Ctrl+C to copy the selected text'); }
   }
@@ -746,17 +914,62 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   $('copyBtn').addEventListener('click', copyAll);
   $('txtBtn').addEventListener('click', () => {
     if (!ta.value.trim()) return toast('Nothing to download yet');
+    learnFromExport();
     save(new Blob(['﻿' + ta.value], { type: 'text/plain;charset=utf-8' }), fileName('txt'));
   });
+  // ---- a real Word (.docx) file, built here (no library needed) ----
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = (b) => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zipStore(files) { // files: [[name, string]] -> Blob (stored, no compression)
+    const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+    for (const [name, text] of files) {
+      const nm = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, nm.length, true);
+      parts.push(h, nm, data);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+      c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, nm.length, true); c.setUint32(42, offset, true);
+      central.push(c, nm);
+      offset += 30 + nm.length + data.length;
+    }
+    const csize = central.reduce((a, p) => a + p.byteLength, 0);
+    const e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, e], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
+  const xmlEsc = (s) => s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Fonts that come with Windows/Office; web-only fonts fall back to one Word will have.
+  const WORD_FONTS = ['Raavi', 'AnmolUni', 'Mangal', 'Nirmala UI', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', 'Georgia', 'Arial'];
+  function docxFont() {
+    if (WORD_FONTS.includes(fontSel.value)) return fontSel.value;
+    return { pa: 'Raavi', hi: 'Nirmala UI', ur: 'Urdu Typesetting' }[lang] || 'Calibri';
+  }
+  function buildDocx(text) {
+    const font = xmlEsc(docxFont()), half = Math.round(size.value * 0.75 * 2), rtl = L().dir === 'rtl';
+    const tag = { pa: 'pa-IN', hi: 'hi-IN', ur: 'ur-PK' }[lang] || 'en-US';
+    const rpr = `<w:rPr><w:rFonts w:ascii="${font}" w:hAnsi="${font}" w:cs="${font}" w:eastAsia="${font}"/>${rtl ? '<w:rtl/>' : ''}<w:sz w:val="${half}"/><w:szCs w:val="${half}"/><w:lang w:val="${lang.startsWith('en') ? tag : 'en-US'}" w:bidi="${tag}"/></w:rPr>`;
+    const ppr = `<w:pPr>${rtl ? '<w:bidi/>' : ''}<w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr>`;
+    const paras = text.replace(/\r/g, '').split(/\n{2,}/).map((p) => {
+      const runs = p.split('\n').map((line, i) => (i ? `<w:r>${rpr}<w:br/></w:r>` : '') + `<w:r>${rpr}<w:t xml:space="preserve">${xmlEsc(line)}</w:t></w:r>`).join('');
+      return `<w:p>${ppr}${runs}</w:p>`;
+    }).join('');
+    const W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+    return zipStore([
+      ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
+      ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+      ['word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${W}><w:body>${paras}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`]
+    ]);
+  }
   $('docBtn').addEventListener('click', () => {
     if (!ta.value.trim()) return toast('Nothing to download yet');
-    const paras = ta.value.split(/\n{2,}/).map((p) => `<p>${htmlEsc(p).replace(/\n/g, '<br>')}</p>`).join('');
-    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Transcript</title>
-<style>body{font-family:"${fontSel.value}","Nirmala UI","Raavi",sans-serif;font-size:${Math.round(size.value * 0.75)}pt;line-height:1.7;direction:${L().dir}}</style></head><body dir="${L().dir}">${paras}</body></html>`;
-    save(new Blob(['﻿' + html], { type: 'application/msword' }), fileName('doc'));
+    learnFromExport();
+    save(buildDocx(ta.value), fileName('docx'));
   });
   $('pdfBtn').addEventListener('click', () => {
     if (!ta.value.trim()) return toast('Nothing to print yet');
+    learnFromExport();
     const p = $('printOut');
     p.textContent = ta.value;
     p.style.fontFamily = ta.style.fontFamily;
@@ -768,10 +981,13 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   $('clearBtn').addEventListener('click', () => {
     if (!ta.value) return;
     lastCleared = ta.value;
-    ta.value = ''; userCaret = null;
+    saveHistory(true);
+    const oldId = curId;
+    ta.value = ''; userCaret = null; undoStack = []; spokenWords = 0; spokenMs = 0;
+    newEntry();
     $('exampleNote').hidden = true;
     onTextChange();
-    toast('Text cleared', 'Undo', () => { ta.value = lastCleared; onTextChange(); });
+    toast('Text cleared · kept in History', 'Undo', () => { curId = oldId; store.set('curId', curId); ta.value = lastCleared; onTextChange(); });
   });
 
   function clearExample() {
@@ -798,6 +1014,8 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   size.addEventListener('input', () => { store.set('size', +size.value); applyLook(); });
   numerals.addEventListener('change', () => store.set('numerals', numerals.checked));
   spoken.addEventListener('change', () => store.set('spoken', spoken.checked));
+  fillers.addEventListener('change', () => store.set('fillers', fillers.checked));
+  enAccent.addEventListener('change', () => { store.set('enVariant', enAccent.value); if (lang.startsWith('en') && lang !== enAccent.value) { langSel.value = enAccent.value; langSel.dispatchEvent(new Event('change')); } });
 
   // theme: System → Light → Dark
   const THEMES = ['system', 'light', 'dark'];
@@ -815,13 +1033,18 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     const mod = e.ctrlKey || e.metaKey;
     if (mod && !e.shiftKey && e.key.toLowerCase() === 'm') { e.preventDefault(); wanted ? stop() : start(); }
     if (mod && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); copyAll(); }
+    if (mod && e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); undoLast(); }
   });
 
 
   // ---------------- vocabulary ----------------
   // Built-in Punjabi vocabulary: headwords and text of Bhai Kahan Singh Nabha's Mahan Kosh
   // (mahan-kosh-words.js, ordered most-common first). Plus "my words", saved in this browser.
-  const PA_WORDS = (window.BOLO_VOCAB_PA || '').split(' ').filter(Boolean);
+  // Modern everyday words (punjabi-common-words.js) come first so suggestions prefer modern spellings.
+  const MK_WORDS = (window.BOLO_VOCAB_PA || '').split(' ').filter(Boolean);
+  const MODERN = (window.BOLO_VOCAB_PA_MODERN || '').split(' ').filter(Boolean);
+  const PA_WORDS = [...new Set([...MODERN, ...MK_WORDS])];
+  const MODERN_NEW = PA_WORDS.length - MK_WORDS.length;
   const rank = new Map(PA_WORDS.map((w, i) => [w, i]));
   const byLen = new Map();
   PA_WORDS.forEach((w) => { const n = [...w].length; if (!byLen.has(n)) byLen.set(n, []); byLen.get(n).push(w); });
@@ -860,9 +1083,10 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   // Punjabi-aware edit distance: swapping look-alike/sound-alike signs costs half.
   const NEAR = [['ਸ', 'ਸ਼'], ['ਜ', 'ਜ਼'], ['ਫ', 'ਫ਼'], ['ਖ', 'ਖ਼'], ['ਗ', 'ਗ਼'], ['ਲ', 'ਲ਼'], ['ਂ', 'ੰ'],
     ['ਿ', 'ੀ'], ['ੁ', 'ੂ'], ['ੇ', 'ੈ'], ['ੋ', 'ੌ'], ['ਣ', 'ਨ'], ['ੜ', 'ਰ'], ['ਬ', 'ਵ'], ['ਇ', 'ਈ'], ['ਉ', 'ਊ'], ['ਏ', 'ਐ'], ['ਓ', 'ਔ']];
-  const nearMap = new Map(); NEAR.forEach(([a, b]) => { nearMap.set(a + b, 1); nearMap.set(b + a, 1); });
   const LIGHT = new Set(['ੱ', 'ਂ', 'ੰ', '਼']);
   const unit = (w) => w.normalize('NFD').match(/.਼?/gu) || [];
+  // (fixed in v2: the pairs are stored the same way they are looked up, so look-alike letters really cost half)
+  const nearMap = new Map(); NEAR.forEach(([a, b]) => { const A = unit(a).join(''), B = unit(b).join(''); nearMap.set(A + '|' + B, 1); nearMap.set(B + '|' + A, 1); });
   function dist(a, b, max) {
     const A = unit(a), B = unit(b);
     if (Math.abs(A.length - B.length) > max) return max + 1;
@@ -918,7 +1142,7 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
     const n = myWords(lang).length;
     $('myCount').textContent = n;
     $('vocabStat').textContent = lang === 'pa'
-      ? (PA_WORDS.length ? `${PA_WORDS.length.toLocaleString()} Mahan Kosh words + ${n} of yours` : `Mahan Kosh word list not found (mahan-kosh-words.js) · ${n} of your words`)
+      ? (MK_WORDS.length ? `${MK_WORDS.length.toLocaleString()} Mahan Kosh words + ${MODERN_NEW.toLocaleString()} modern words + ${n} of yours` : `Mahan Kosh word list not found (mahan-kosh-words.js) · ${n} of your words`)
       : `${n} of your words for this language`;
     $('checkBtn').disabled = !hasVocab();
   }
@@ -1009,6 +1233,16 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   });
   ta.addEventListener('input', () => { if (!$('checkPanel').hidden) { clearTimeout(ta._ck); ta._ck = setTimeout(renderCheck, 600); } });
   $('autofix').checked = store.get('autofix', false);
+  $('autolearn').checked = store.get('autolearn', false);
+  $('autolearn').addEventListener('change', () => store.set('autolearn', $('autolearn').checked));
+  // Learn as you go: words you keep in text you copy or download are added to your words.
+  function learnFromExport() {
+    if (!$('autolearn').checked || !hasVocab()) return;
+    const fresh = unknownWords().map(([w]) => w).filter((w) => [...w].length > 1);
+    if (!fresh.length) return;
+    setMyWords(lang, myWords(lang).concat(fresh)); if (!$('myPanel').hidden) fillMyWords();
+    setTimeout(() => toast(`Learned ${fresh.length} new word${fresh.length === 1 ? '' : 's'}`), 2300);
+  }
   $('autofix').addEventListener('change', () => store.set('autofix', $('autofix').checked));
 
   // ---------------- language pills (quick switch, kept in step with the Language menu) ----------------
@@ -1023,13 +1257,215 @@ kbd { font: 12px ui-monospace, Menlo, monospace; border: 1px solid var(--line); 
   langSel.addEventListener('change', () => { if (lang.startsWith('en')) store.set('enVariant', lang); syncPills(); });
   syncPills();
 
+  // ---------------- dialogs ----------------
+  document.querySelectorAll('dialog [data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
+  document.querySelectorAll('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
+  $('helpBtn').addEventListener('click', () => $('helpDlg').showModal());
+
+  // ---------------- history: every text is kept, even after Clear ----------------
+  const HIST_MAX = 100;
+  let curId = store.get('curId', null);
+  const getHist = () => store.get('history', []);
+  function newEntry() { curId = 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); store.set('curId', curId); }
+  function saveHistory(force) {
+    const text = ta.value;
+    if (!curId) newEntry();
+    let h = getHist();
+    const i = h.findIndex((e) => e.id === curId);
+    // Emptied the page by hand: keep what was there and start a fresh entry for whatever comes next.
+    if (!text.trim()) { if (i >= 0) newEntry(); return; }
+    const entry = { id: curId, text, lang, t: Date.now(), c: i >= 0 ? h[i].c : Date.now() };
+    if (i >= 0) h.splice(i, 1);
+    h.unshift(entry);
+    if (h.length > HIST_MAX) h = h.slice(0, HIST_MAX);
+    store.set('history', h);
+  }
+  const when = (t) => {
+    const d = new Date(t), now = new Date();
+    const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (d.toDateString() === now.toDateString()) return 'Today ' + time;
+    const y = new Date(now); y.setDate(now.getDate() - 1);
+    if (d.toDateString() === y.toDateString()) return 'Yesterday ' + time;
+    return d.toLocaleDateString([], { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' }) + ' ' + time;
+  };
+  const LANG_NAME = { pa: 'Punjabi', hi: 'Hindi', ur: 'Urdu', 'en-IN': 'English', 'en-US': 'English' };
+  function renderHistory() {
+    saveHistory();
+    const q = $('histSearch').value.trim().toLowerCase();
+    const list = $('histList'); list.innerHTML = '';
+    const items = getHist().filter((e) => !q || e.text.toLowerCase().includes(q));
+    if (!items.length) { const li = document.createElement('li'); li.textContent = q ? 'Nothing matches that search.' : 'Nothing saved yet. Your texts appear here as you write.'; list.appendChild(li); return; }
+    for (const e of items) {
+      const li = document.createElement('li'); if (e.id === curId) li.className = 'current';
+      const meta = document.createElement('div'); meta.className = 'meta';
+      const b = document.createElement('b'); b.textContent = when(e.t);
+      const m = document.createElement('span'); m.textContent = `${wordCount(e.text)} words · ${LANG_NAME[e.lang] || ''}${e.id === curId ? ' · open now' : ''}`;
+      meta.append(b, m);
+      const prev = document.createElement('div'); prev.className = 'prev'; prev.textContent = e.text.slice(0, 300);
+      prev.dir = (LANGS[e.lang] || L()).dir;
+      const acts = document.createElement('div'); acts.className = 'acts';
+      if (e.id !== curId) {
+        const open = document.createElement('button'); open.type = 'button'; open.className = 'btn primary'; open.textContent = 'Open';
+        open.addEventListener('click', () => openEntry(e)); acts.append(open);
+      }
+      const cp = document.createElement('button'); cp.type = 'button'; cp.className = 'btn'; cp.textContent = 'Copy';
+      cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(e.text); toast('Copied ✓'); } catch { toast('Couldn’t copy'); } });
+      acts.append(cp);
+      if (e.id !== curId) {
+        const del = document.createElement('button'); del.type = 'button'; del.className = 'btn ghost-danger'; del.textContent = 'Delete';
+        del.addEventListener('click', () => {
+          store.set('history', getHist().filter((x) => x.id !== e.id)); renderHistory();
+          toast('Deleted', 'Undo', () => { const h = getHist(); h.push(e); h.sort((a, b2) => b2.t - a.t); store.set('history', h); renderHistory(); });
+        });
+        acts.append(del);
+      }
+      li.append(meta, prev, acts); list.append(li);
+    }
+  }
+  function openEntry(e) {
+    if (wanted) stop();
+    saveHistory();
+    curId = e.id; store.set('curId', curId);
+    if (e.lang && e.lang !== lang && LANGS[e.lang]) { langSel.value = e.lang; langSel.dispatchEvent(new Event('change')); }
+    ta.value = e.text; userCaret = null; undoStack = []; spokenWords = 0; spokenMs = 0;
+    $('exampleNote').hidden = true;
+    onTextChange();
+    $('histDlg').close();
+    toast('Opened from History');
+  }
+  $('historyBtn').addEventListener('click', () => { $('histSearch').value = ''; renderHistory(); $('histDlg').showModal(); });
+  $('histSearch').addEventListener('input', renderHistory);
+
+  // ---------------- test my setup ----------------
+  let testing = false;
+  const STEPS = [
+    ['browser', 'Browser can turn speech into text'],
+    ['mic', 'Microphone is allowed'],
+    ['level', 'Microphone hears you'],
+    ['service', 'Speech service understands you']
+  ];
+  function step(id, state, msg) {
+    const li = document.querySelector(`#testSteps li[data-id="${id}"]`); if (!li) return;
+    li.className = state; li.querySelector('.ic').textContent = { ok: '✓', bad: '✕', warn: '!', run: '…', '': '' }[state] ?? '';
+    if (msg !== undefined) li.querySelector('.msg').textContent = msg;
+  }
+  function resetSteps() {
+    const ol = $('testSteps'); ol.innerHTML = '';
+    for (const [id, name] of STEPS) {
+      const li = document.createElement('li'); li.dataset.id = id;
+      li.innerHTML = '<span class="ic"></span><div><b></b><div class="msg"></div></div>';
+      li.querySelector('b').textContent = name; ol.append(li);
+    }
+  }
+  function openTest() { if (wanted) stop(); banner(''); resetSteps(); $('testRun').disabled = false; $('testRun').textContent = 'Start the test'; $('testDlg').showModal(); }
+  $('testBtn').addEventListener('click', openTest);
+  $('testDlg').addEventListener('close', () => { testing = false; });
+  const isEdge = /Edg\//.test(navigator.userAgent), isChrome = /Chrome\//.test(navigator.userAgent) && !isEdge;
+  async function runTest() {
+    if (testing) return;
+    testing = true; resetSteps(); $('testRun').disabled = true; $('testRun').textContent = 'Testing…';
+    const done = (label) => { testing = false; $('testRun').disabled = false; $('testRun').textContent = label || 'Test again'; };
+    // 1. browser
+    if (!SR) { step('browser', 'bad', 'This browser has no speech recognition. Open this page in Microsoft Edge.'); return done(); }
+    step('browser', 'ok', isEdge ? 'Microsoft Edge — the browser that works best on your computer.' : isChrome ? 'Google Chrome. If the last step fails, try Microsoft Edge instead.' : 'Supported.');
+    // 2. microphone permission
+    step('mic', 'run', 'Asking for the microphone… choose Allow if asked.');
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) {
+      const nf = e && e.name === 'NotFoundError';
+      step('mic', 'bad', nf ? 'No microphone found. Plug one in, or check Windows Settings → System → Sound → Input.' : 'Blocked. Click the icon at the left of the address bar, set Microphone to Allow, reload, and test again.');
+      return done();
+    }
+    const label = (stream.getAudioTracks()[0] || {}).label;
+    step('mic', 'ok', label ? 'Using: ' + label : 'Allowed.');
+    // 3. level
+    step('level', 'run', 'Say something now…');
+    const msgEl = document.querySelector('#testSteps li[data-id="level"] .msg');
+    const meter = document.createElement('div'); meter.className = 'meter'; meter.innerHTML = '<i></i>'; msgEl.after(meter);
+    let peak = 0;
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const an = ac.createAnalyser(); an.fftSize = 1024; ac.createMediaStreamSource(stream).connect(an);
+      const buf = new Float32Array(an.fftSize); const t0 = Date.now();
+      await new Promise((ok) => {
+        const tickL = () => {
+          if (!testing) return ok();
+          an.getFloatTimeDomainData(buf); let sum = 0; for (const v of buf) sum += v * v;
+          const rms = Math.sqrt(sum / buf.length); peak = Math.max(peak, rms);
+          meter.firstChild.style.width = Math.min(100, rms * 400) + '%';
+          if (Date.now() - t0 > 3500 || peak > 0.08) return ok();
+          requestAnimationFrame(tickL);
+        };
+        tickL();
+      });
+      ac.close();
+    } catch {}
+    stream.getTracks().forEach((t) => t.stop());
+    if (!testing) return;
+    if (peak < 0.01) step('level', 'bad', 'The microphone is silent. Check it isn’t muted, and that Windows is using the right one (Settings → System → Sound → Input).');
+    else step('level', peak < 0.03 ? 'warn' : 'ok', peak < 0.03 ? 'Very quiet. Move closer to the microphone or turn its level up.' : 'Hearing you clearly.');
+    // 4. speech service
+    step('service', 'run', `Say a short sentence in ${LANG_NAME[lang]}…`);
+    const result = await new Promise((ok) => {
+      let finished = false, idx = 0;
+      const finish = (v) => { if (finished) return; finished = true; try { r && r.abort(); } catch {} ok(v); };
+      let r;
+      const go = () => {
+        r = new SR(); r.lang = L().codes[idx] || L().codes[0]; r.interimResults = true; r.continuous = true;
+        r.onresult = (e) => { const t = Array.from(e.results).map((x) => x[0].transcript).join(' ').trim(); if (t) finish({ ok: true, text: t }); };
+        r.onerror = (e) => {
+          if (e.error === 'no-speech' || e.error === 'aborted') return;
+          if ((e.error === 'network' || e.error === 'language-not-supported') && idx < L().codes.length - 1) { idx++; try { r.abort(); } catch {} setTimeout(go, 200); return; }
+          finish({ ok: false, error: e.error });
+        };
+        r.onend = () => { if (!finished) setTimeout(() => { if (!finished) finish({ ok: false, error: 'silence' }); }, 50); };
+        try { r.start(); } catch { finish({ ok: false, error: 'start' }); }
+      };
+      go();
+      setTimeout(() => finish({ ok: false, error: 'timeout' }), 12000);
+    });
+    if (!testing) return;
+    if (result.ok) step('service', 'ok', 'Heard: “' + result.text + '”. Everything works.');
+    else {
+      const why = {
+        network: isEdge ? 'Couldn’t reach Microsoft’s speech service. Check the internet connection, VPN or firewall, then test again.' : 'Couldn’t reach the browser’s speech service. Open this page in Microsoft Edge and test again.',
+        'not-allowed': 'The browser blocked speech recognition for this page. Allow the microphone (icon at the left of the address bar) and reload.',
+        'language-not-supported': 'This browser doesn’t support this language. Try Microsoft Edge.',
+        silence: 'The service started but heard no words. Speak right after pressing Start, a little louder.',
+        timeout: 'No words came back in 12 seconds. Speak right after pressing Start; if it still fails, restart the browser.',
+        start: 'Couldn’t start listening. Close other Bolo tabs and test again.'
+      }[result.error] || 'Stopped with “' + result.error + '”. Restart the browser and test again.';
+      step('service', result.error === 'silence' || result.error === 'timeout' ? 'warn' : 'bad', why);
+    }
+    done();
+  }
+  $('testRun').addEventListener('click', runTest);
+
+  // ---------------- new version check ----------------
+  let lastCheck = 0;
+  async function checkUpdate() {
+    if (location.protocol === 'file:' || Date.now() - lastCheck < 10 * 60 * 1000) return;
+    lastCheck = Date.now();
+    try {
+      const r = await fetch(location.href.split('#')[0], { cache: 'no-store' });
+      const m = (await r.text()).match(/data-bolo-version="([^"]+)"/);
+      if (m && m[1] !== VERSION) $('updateNote').hidden = false;
+    } catch {}
+  }
+  $('updateBtn').addEventListener('click', () => { saveHistory(); location.reload(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
+  setTimeout(checkUpdate, 4000);
+
   // ---------------- first view ----------------
   fillFonts(); applyLook(); applyTheme(); updateVocabStat();
+  // Start with your last text (no example text any more). Older saved drafts carry over into History.
   const draft = store.get('draft', '');
-  if (draft) { ta.value = draft; }
-  else { ta.value = L().example; $('exampleNote').hidden = false; }
+  if (draft) ta.value = draft;
+  if (!curId) newEntry();
+  if (draft) saveHistory();
   counts();
-  window.addEventListener('beforeunload', () => { if (wanted) stop(); });
+  window.addEventListener('beforeunload', () => { if (wanted) stop(); saveHistory(); });
 })();
 </script>
 </body>
